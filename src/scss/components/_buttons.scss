@@ -1,0 +1,20 @@
+@use '../abstracts/mixins' as *;
+@use '../abstracts/variables' as *;
+
+.btn {
+	background-color: $color-accent;
+	padding: 18px 25px;
+	color: $color-white;
+	font-size: 18px;
+	font-weight: 700;
+
+	&--small {
+		padding: 7px 10px;
+		font-size: 12px;
+	}
+
+	&--medium {
+		padding: 10px 25px;
+		font-size: 17px;
+	}
+}
