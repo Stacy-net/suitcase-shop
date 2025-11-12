@@ -6,12 +6,14 @@
 @use './components/product-card' as *;
 @use './layouts/header' as *;
 @use './layouts/footer' as *;
+@use './pages/about' as *;
+@use './pages/contact' as *;
+@use './pages/cart' as *;
 
 body {
 	font-family: $font-family-base;
 	font-weight: 400;
 	font-size: 17px;
-	line-height: 1.2;
 }
 
 section {
@@ -148,13 +150,13 @@ section {
 }
 
 .suitcase-card {
-	overflow: hidden;
+	// overflow: hidden;
 	position: relative;
 	transition: transform 0.3s ease, box-shadow 0.3s ease;
 	min-width: 296px;
 
 	&:hover {
-		transform: translateY(-4px);
+		transform: scale(1.05);
 		box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
 	}
 
@@ -172,9 +174,9 @@ section {
 	}
 
 	&:hover .suitcase-card__img {
-		transform: scale(1.08);
+		transform: scale(1.1);
 		filter: brightness(1.05);
-		box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
+		// box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
 	}
 
 	&__overlay {
@@ -217,7 +219,7 @@ section {
 .banner {
 	&__container {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		justify-content: space-between;
 		background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
 			url(../assets/images/banner-image.png) no-repeat center / cover;
@@ -228,22 +230,25 @@ section {
 	&__left {
 		flex: 1;
 		color: $color-white;
+		text-align: center;
 	}
 
 	&__discount {
 		font-size: 223px;
+		line-height: 1;
 	}
 
 	&__description {
 		font-size: 20px;
-		margin-top: -60px;
 	}
 
 	&__right {
 		flex: 1;
 		color: $color-white;
-		padding-left: 176px;
-		padding-top: 90px;
+	}
+
+	&__right-inner {
+		padding-left: 126px;
 	}
 
 	&__title {
@@ -253,6 +258,7 @@ section {
 
 	&__details {
 		margin-bottom: 30px;
+		line-height: 1.7;
 	}
 }
 

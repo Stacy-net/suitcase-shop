@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact us</title>
+  <link rel="stylesheet" href="../dist/main.css">
+
+</head>
+
+<body>
+
+  <header></header>
+  <section class="hero-page hero-contact">
+    <div class="hero-page__container">
+      <h2 class="hero-page__title">Contacts us</h2>
+      <p class="hero-page__subtitle">Duis vestibulum elit vel neque pharetra vulputate. <br>
+        Duis rutrum non risus in imperdiet. </p>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features__container container">
+      <ul class="features__list">
+        <li class="features__item">
+          <img class="features__icon" src="../assets/images/icons/location.svg" alt="Our location" aria-hidden="true">
+          <h3 class="features__title">Our location</h3>
+          <p class="features__text">
+            1234 NW Bobcat Lane, St.
+            Robert, MO 65584-5678
+          </p>
+        </li>
+        <li class="features__item">
+          <img class="features__icon" src="../assets/images/icons/work-time.svg" alt="Operation Time"
+            aria-hidden="true">
+          <h3 class="features__title">Operating Time</h3>
+          <p class="features__text">
+            Monday - Friday: 9am - 6 pm
+            Weekends: 10:30 am - 6pm
+          </p>
+        </li>
+        <li class="features__item">
+          <img class="features__icon" src="../assets/images/icons/contact-mail.svg" alt="Our email" aria-hidden="true">
+          <h3 class="features__title">Our email</h3>
+          <p class="features__text">
+            best@shop.com
+            info@bestshop.com
+          </p>
+        </li>
+        <li class="features__item">
+          <img class="features__icon" src="../assets/images/icons/call-us.svg" alt="Call us" aria-hidden="true">
+          <h3 class="features__title">Call us</h3>
+          <p class="features__text">
+            (268)142-8413 <br>
+            (760)265-2917
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="feedback">
+    <div class="feedback__container container">
+      <div class="feedback__image">
+        <!-- <img src="../assets/images/feedback image.jpg" alt=""> -->
+      </div>
+      <div class="feedback__content">
+        <h3 class="feedback__title">Your Feedback Is Much Appreciated!</h3>
+        <p class="feedback__text">We will contact you when you complete the following form!</p>
+
+        <form action="" class="feedback__form">
+          <div class="form-group">
+            <label for="name" class="form-label">
+              Your Name <span class="required">*</span>
+            </label>
+            <input type="text" class="form-input" id="name" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">
+              Your Email Address <span class="required">*</span>
+            </label>
+            <input type="email" class="form-input" id="email" name="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="topic" class="form-label">
+              Topic <span class="required">*</span>
+            </label>
+            <input type="text" class="form-input" id="topic" name="topic" required>
+          </div>
+
+          <div class="form-group">
+            <label for="message" class="form-label">
+              Your Message <span class="required">*</span>
+            </label>
+            <textarea class="form-textarea" id="message" name="message" required></textarea>
+          </div>
+
+          <button type="submit" class="form-button btn btn--medium">Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer></footer>
+  <script type="module" src="../js/main.js"></script>
+</body>
+
+</html>

@@ -43,6 +43,11 @@
 	margin: 0 auto;
 }
 
+.header__actions {
+	@include flex-center;
+	gap: 16px;
+}
+
 .nav__list {
 	@include flex-center;
 	gap: 29px;
@@ -56,4 +61,8 @@
 	&:hover {
 		color: $color-accent;
 	}
+}
+
+.nav__link--active {
+	color: $color-accent;
 }
