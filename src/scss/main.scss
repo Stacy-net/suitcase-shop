@@ -3,12 +3,14 @@
 @use './abstracts/variables' as *;
 @use './abstracts/mixins' as *;
 @use './components/buttons' as *;
+@use './components/forms' as *;
 @use './components/product-card' as *;
 @use './layouts/header' as *;
 @use './layouts/footer' as *;
 @use './pages/about' as *;
 @use './pages/contact' as *;
 @use './pages/cart' as *;
+@use './pages/catalog' as *;
 
 body {
 	font-family: $font-family-base;
@@ -141,68 +143,68 @@ section {
 
 /* Travel Suitcases */
 
-.suitcases {
-	&__slider {
-		display: flex;
-		overflow: hidden;
-		gap: 40px;
-	}
+.suitcases__slider {
+	display: flex;
+	overflow: hidden;
+	gap: 40px;
+	padding: 30px 20px;
+	transition: transform 0.9s ease;
 }
 
 .suitcase-card {
-	// overflow: hidden;
 	position: relative;
-	transition: transform 0.3s ease, box-shadow 0.3s ease;
-	min-width: 296px;
+	min-width: 280px;
+	cursor: pointer;
+	transition: all 0.5s ease, box-shadow 0.3s ease;
+	transform-origin: center center;
 
 	&:hover {
 		transform: scale(1.05);
-		box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
+		box-shadow: 0px 3px 15px -4px #000000;
+		z-index: 5;
 	}
+}
+.suitcase-card__media {
+	position: relative;
+	height: 100%;
+	overflow: hidden;
+}
 
-	&__media {
-		position: relative;
-		height: 100%;
-		overflow: hidden;
-	}
+.suitcase-card__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
 
-	&__img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 0.6s ease;
-	}
+.suitcase-card__overlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: 24px;
+	// background: linear-gradient(
+	// 	180deg,
+	// 	rgba(0, 0, 0, 0) 40%,
+	// 	rgba(0, 0, 0, 0.7) 100%
+	// );
+	background: rgba(0, 0, 0, 0.2);
+	transition: all 0.3s ease;
 
-	&:hover .suitcase-card__img {
-		transform: scale(1.1);
-		filter: brightness(1.05);
-		// box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
+	&:hover {
+		background: rgba(0, 0, 0, 0.4);
 	}
+}
 
-	&__overlay {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-end;
-		padding: 24px;
-		background: linear-gradient(
-			180deg,
-			rgba(0, 0, 0, 0) 40%,
-			rgba(0, 0, 0, 0.6) 100%
-		);
-	}
-
-	&__headline {
-		margin: 0 0 8px;
-		font-weight: 700;
-		font-size: 19px;
-		color: $color-white;
-	}
-	&__text {
-		font-size: 15px;
-		color: #e8eaf1;
-	}
+.suitcase-card__headline {
+	margin: 0 0 8px;
+	font-weight: 700;
+	font-size: 19px;
+	color: $color-white;
+}
+.suitcase-card__text {
+	font-size: 15px;
+	color: #e8eaf1;
 }
 
 /* Selected Products */
@@ -301,4 +303,111 @@ section {
 		color: $color-accent;
 		font-weight: 700;
 	}
+}
+
+/* Модальне вікно */
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 9999;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.modal-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: #fff;
+	padding: 50px;
+	border-radius: 10px;
+	width: 480px;
+	max-width: 100%;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal .form-label {
+	font-weight: 400;
+	font-size: 14px;
+}
+
+.password-wrapper {
+	position: relative;
+}
+
+.password-toggle {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: pointer;
+}
+
+.form-info {
+	display: flex;
+	justify-content: space-between;
+}
+
+.login-button {
+	width: 100%;
+	text-transform: uppercase;
+	font-size: 14px;
+}
+
+.login-title {
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.forgot-password-link {
+	color: $color-accent;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.custom-checkbox {
+	display: none;
+}
+
+.checkbox-label {
+	position: relative;
+	padding-left: 22px;
+	cursor: pointer;
+	font-size: 12px;
+	color: $color-light-grey;
+	display: inline-block;
+}
+
+.checkbox-label:before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 16px;
+	height: 16px;
+	background-color: #fff;
+	border: 2px solid $color-light-grey;
+	opacity: 0.5;
+	transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.custom-checkbox:checked + .checkbox-label:before {
+	background-color: $color-primary;
+	border-color: $color-primary;
+}
+
+.custom-checkbox:checked + .checkbox-label:after {
+	content: '\2713';
+	position: absolute;
+	left: 4px;
+	top: 0;
+	font-size: 12px;
+	color: #fff;
 }

@@ -1,6 +1,20 @@
 @use '../abstracts/mixins' as *;
 @use '../abstracts/variables' as *;
 
+#header {
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	background-color: $color-white;
+	visibility: hidden;
+	opacity: 0;
+}
+
+#header.visible {
+	visibility: visible;
+	opacity: 1;
+}
+
 .header__wrapper {
 	padding-top: 48px;
 }

@@ -2,199 +2,280 @@
 // CONSTANTS
 // ============================================================================
 
-const STORAGE_KEY = 'shopping_cart';
+const CART_STORAGE_KEY = 'suitcase-cart';
+const ASSETS_PATH = '../assets/';
+const SHIPPING_COST = 30;
+
 const SELECTORS = {
-	cartCounter: '.header__cart-counter',
-	cartIcon: '.header__action[aria-label="Shopping cart"]',
+	cartItems: '.cart__items',
+	quantityBtn: '.cart__quantity-btn',
+	deleteBtn: '.cart__delete-btn',
+	continueBtn: '.btn-primary',
+	clearBtn: '.btn-secondary',
+	checkoutBtn: '.cart__checkout-btn',
+	subtotal: '[data-js="subtotal"]',
+	shipping: '[data-js="shipping"]',
+	total: '[data-js="total"]',
+	cartCount: '[data-js="cart-count"]',
+};
+
+const MESSAGES = {
+	emptyCart: 'Your cart is empty',
+	removeItem: 'Are you sure you want to remove this item?',
+	clearCart: 'Are you sure you want to clear your cart?',
+	emptyCheckout: 'Your cart is empty!',
+	checkout: 'Proceeding to checkout...',
+	removeOnZero: 'Remove this item from cart?',
 };
 
 // ============================================================================
-// CART UTILITIES
+// CART MANAGER
 // ============================================================================
 
-const getCart = () => {
-	try {
-		const cart = localStorage.getItem(STORAGE_KEY);
+export const CartManager = {
+	getCart() {
+		const cart = localStorage.getItem(CART_STORAGE_KEY);
 		return cart ? JSON.parse(cart) : [];
-	} catch (error) {
-		console.error('Error reading cart:', error);
-		return [];
-	}
-};
+	},
 
-const saveCart = (cart) => {
-	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-		return true;
-	} catch (error) {
-		console.error('Error saving cart:', error);
-		return false;
-	}
-};
+	saveCart(cart) {
+		localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+	},
 
-const addToCart = (product) => {
-	const cart = getCart();
+	addToCart(product) {
+		const cart = this.getCart();
+		const existingItem = cart.find((item) => item.id === product.id);
 
-	const existingItem = cart.find((item) => item.id === product.id);
-
-	if (existingItem) {
-		existingItem.quantity += 1;
-	} else {
-		cart.push({
-			id: product.id,
-			name: product.name,
-			price: product.price,
-			imageUrl: product.imageUrl,
-			quantity: 1,
-		});
-	}
-
-	saveCart(cart);
-	updateCartCounter();
-
-	return true;
-};
-
-const removeFromCart = (productId) => {
-	const cart = getCart();
-	const updatedCart = cart.filter((item) => item.id !== productId);
-	saveCart(updatedCart);
-	updateCartCounter();
-};
-
-const updateCartItemQuantity = (productId, quantity) => {
-	const cart = getCart();
-	const item = cart.find((item) => item.id === productId);
-
-	if (item) {
-		if (quantity <= 0) {
-			removeFromCart(productId);
+		if (existingItem) {
+			existingItem.quantity += 1;
 		} else {
-			item.quantity = quantity;
-			saveCart(cart);
-			updateCartCounter();
-		}
-	}
-};
-
-const clearCart = () => {
-	localStorage.removeItem(STORAGE_KEY);
-	updateCartCounter();
-};
-
-const getCartCount = () => {
-	const cart = getCart();
-	return cart.reduce((total, item) => total + item.quantity, 0);
-};
-
-const getCartTotal = () => {
-	const cart = getCart();
-	return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-};
-
-// ============================================================================
-// UI UPDATES
-// ============================================================================
-
-const updateCartCounter = () => {
-	const counter = document.querySelector(SELECTORS.cartCounter);
-	const count = getCartCount();
-
-	if (counter) {
-		counter.textContent = count;
-		counter.style.display = count > 0 ? 'flex' : 'none';
-	}
-};
-
-const createCartCounter = () => {
-	const cartIcon = document.querySelector(SELECTORS.cartIcon);
-	if (!cartIcon) return;
-
-	let counter = cartIcon.querySelector(SELECTORS.cartCounter);
-
-	if (!counter) {
-		counter = document.createElement('span');
-		counter.className = 'header__cart-counter';
-		cartIcon.style.position = 'relative';
-		cartIcon.appendChild(counter);
-	}
-
-	updateCartCounter();
-};
-
-// ============================================================================
-// PRODUCT CARD HANDLERS
-// ============================================================================
-
-const initProductCards = (products) => {
-	const productCards = document.querySelectorAll('.product-card');
-
-	productCards.forEach((card) => {
-		const productId = card.getAttribute('data-id');
-		const product = products.find((p) => p.id === productId);
-
-		if (!product) return;
-
-		// Клік на картку -> перехід на деталі
-		const imageArea = card.querySelector('.product-card__image');
-		const titleArea = card.querySelector('.product-card__title');
-
-		[imageArea, titleArea].forEach((area) => {
-			if (area) {
-				area.style.cursor = 'pointer';
-				area.addEventListener('click', (e) => {
-					if (!e.target.closest('.product-card__button')) {
-						window.location.href = `./html/product.html?id=${productId}`;
-					}
-				});
-			}
-		});
-
-		// Кнопка Add to Cart
-		const addButton = card.querySelector('.product-card__button');
-		if (addButton) {
-			addButton.addEventListener('click', (e) => {
-				e.stopPropagation();
-
-				const success = addToCart(product);
-
-				if (success) {
-					// Візуальний фідбек
-					addButton.textContent = '✓ Added!';
-					addButton.style.background = '#4caf50';
-
-					setTimeout(() => {
-						addButton.textContent = 'Add To Cart';
-						addButton.style.background = '';
-					}, 1500);
-				}
+			cart.push({
+				id: product.id,
+				name: product.name,
+				price: product.price,
+				imageUrl: product.imageUrl,
+				quantity: 1,
 			});
 		}
-	});
+
+		this.saveCart(cart);
+		this.updateCartCount();
+		return cart;
+	},
+
+	removeFromCart(productId) {
+		let cart = this.getCart();
+		cart = cart.filter((item) => item.id !== productId);
+		this.saveCart(cart);
+		this.updateCartCount();
+		return cart;
+	},
+
+	updateQuantity(productId, quantity) {
+		const cart = this.getCart();
+		const item = cart.find((item) => item.id === productId);
+
+		if (item) {
+			item.quantity = Math.max(1, quantity);
+			this.saveCart(cart);
+		}
+
+		return cart;
+	},
+
+	clearCart() {
+		localStorage.removeItem(CART_STORAGE_KEY);
+		this.updateCartCount();
+	},
+
+	getCartCount() {
+		const cart = this.getCart();
+		return cart.reduce((total, item) => total + item.quantity, 0);
+	},
+
+	getCartTotal() {
+		const cart = this.getCart();
+		return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+	},
+
+	updateCartCount() {
+		const cartCountElements = document.querySelectorAll(SELECTORS.cartCount);
+		const count = this.getCartCount();
+
+		cartCountElements.forEach((element) => {
+			element.textContent = count;
+			element.style.display = count > 0 ? 'inline' : 'none';
+		});
+	},
+};
+
+// ============================================================================
+// RENDER FUNCTIONS
+// ============================================================================
+
+const createCartItemHTML = (item) => {
+	return `
+    <div class="cart__item" data-id="${item.id}">
+      <img src="${ASSETS_PATH}${item.imageUrl}" alt="${
+		item.name
+	}" class="cart__item-image">
+      <div class="cart__item-name">${item.name}</div>
+      <div class="cart__item-price">$${item.price}</div>
+      <div class="cart__quantity">
+        <button class="cart__quantity-btn" data-action="decrease" data-id="${
+					item.id
+				}">−</button>
+        <span class="cart__quantity-value">${item.quantity}</span>
+        <button class="cart__quantity-btn" data-action="increase" data-id="${
+					item.id
+				}">+</button>
+      </div>
+      <div class="cart__item-total">$${(item.price * item.quantity).toFixed(
+				2
+			)}</div>
+      <button class="cart__delete-btn" data-id="${item.id}">
+        <img src="../assets/images/icons/trash.svg" alt="Delete icon">
+      </button>
+    </div>
+  `;
+};
+
+const createEmptyCartHTML = () => {
+	return `
+    <div class="cart__empty">
+      <p>${MESSAGES.emptyCart}</p>
+    </div>
+  `;
+};
+
+const renderCartItems = () => {
+	const cart = CartManager.getCart();
+	const cartItemsContainer = document.querySelector(SELECTORS.cartItems);
+
+	if (!cartItemsContainer) return;
+
+	if (cart.length === 0) {
+		cartItemsContainer.innerHTML = createEmptyCartHTML();
+		updateCartSummary();
+		return;
+	}
+
+	cartItemsContainer.innerHTML = cart.map(createCartItemHTML).join('');
+	initCartControls();
+	updateCartSummary();
+};
+
+const updateCartSummary = () => {
+	const cart = CartManager.getCart();
+	const subtotal = CartManager.getCartTotal();
+	const shipping = cart.length > 0 ? SHIPPING_COST : 0;
+	const total = subtotal + shipping;
+
+	const subtotalElement = document.querySelector(SELECTORS.subtotal);
+	const shippingElement = document.querySelector(SELECTORS.shipping);
+	const totalElement = document.querySelector(SELECTORS.total);
+
+	if (subtotalElement) subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+	if (shippingElement) shippingElement.textContent = `$${shipping.toFixed(2)}`;
+	if (totalElement) totalElement.textContent = `$${total.toFixed(2)}`;
+};
+
+// ============================================================================
+// EVENT HANDLERS
+// ============================================================================
+
+const handleQuantityChange = (productId, action) => {
+	const item = CartManager.getCart().find((i) => i.id === productId);
+
+	if (!item) return;
+
+	const newQuantity =
+		action === 'increase' ? item.quantity + 1 : item.quantity - 1;
+
+	if (newQuantity > 0) {
+		CartManager.updateQuantity(productId, newQuantity);
+		renderCartItems();
+	} else {
+		if (confirm(MESSAGES.removeOnZero)) {
+			CartManager.removeFromCart(productId);
+			renderCartItems();
+		}
+	}
+};
+
+const handleDeleteItem = (productId) => {
+	if (confirm(MESSAGES.removeItem)) {
+		CartManager.removeFromCart(productId);
+		renderCartItems();
+	}
+};
+
+const handleContinueShopping = () => {
+	window.location.href = '../catalog.html';
+};
+
+const handleClearCart = () => {
+	if (confirm(MESSAGES.clearCart)) {
+		CartManager.clearCart();
+		renderCartItems();
+	}
+};
+
+const handleCheckout = () => {
+	const cart = CartManager.getCart();
+
+	if (cart.length === 0) {
+		alert(MESSAGES.emptyCheckout);
+		return;
+	}
+
+	alert(MESSAGES.checkout);
+	// Тут можна додати редірект на сторінку оформлення замовлення
 };
 
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
 
-const initCart = () => {
-	createCartCounter();
-	updateCartCounter();
+const initCartControls = () => {
+	// Кнопки зміни кількості
+	document.querySelectorAll(SELECTORS.quantityBtn).forEach((btn) => {
+		btn.addEventListener('click', (e) => {
+			const productId = e.currentTarget.dataset.id;
+			const action = e.currentTarget.dataset.action;
+			handleQuantityChange(productId, action);
+		});
+	});
+
+	// Кнопки видалення
+	document.querySelectorAll(SELECTORS.deleteBtn).forEach((btn) => {
+		btn.addEventListener('click', (e) => {
+			const productId = e.currentTarget.dataset.id;
+			handleDeleteItem(productId);
+		});
+	});
 };
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
+const initCartButtons = () => {
+	const continueBtn = document.querySelector(SELECTORS.continueBtn);
+	const clearBtn = document.querySelector(SELECTORS.clearBtn);
+	const checkoutBtn = document.querySelector(SELECTORS.checkoutBtn);
 
-export {
-	getCart,
-	addToCart,
-	removeFromCart,
-	updateCartItemQuantity,
-	clearCart,
-	getCartCount,
-	getCartTotal,
-	updateCartCounter,
-	initCart,
-	initProductCards,
+	if (continueBtn) {
+		continueBtn.addEventListener('click', handleContinueShopping);
+	}
+
+	if (clearBtn) {
+		clearBtn.addEventListener('click', handleClearCart);
+	}
+
+	if (checkoutBtn) {
+		checkoutBtn.addEventListener('click', handleCheckout);
+	}
+};
+
+export const initCart = () => {
+	renderCartItems();
+	initCartButtons();
+	CartManager.updateCartCount();
 };

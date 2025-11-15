@@ -151,7 +151,7 @@
 			"category": "suitcases",
 			"color": "pink",
 			"size": "XL",
-			"salesStatus": true,
+			"salesStatus": false,
 			"rating": 4.8,
 			"popularity": 88,
 			"blocks": ["You May Also Like", "Selected Products"]
@@ -186,7 +186,7 @@
 			"id": "KL015",
 			"name": "Urban Traveler Kids' Rolling Luggage",
 			"price": 220,
-			"imageUrl": "images/kid-suitcase-2.png",
+			"imageUrl": "images/kid-suitcase-2.jpg",
 			"category": "kids' luggage",
 			"color": "blue",
 			"size": "S",
@@ -211,28 +211,28 @@
 		{
 			"id": "SET017",
 			"name": "Premium Explorer Luggage Set",
-			"price": 750,
-			"imageUrl": "images/suitcase-small-yellow.png",
+			"price": 1500,
+			"imageUrl": "images/thumb-4.png",
 			"category": "luggage sets",
 			"color": "yellow",
 			"size": "S, M, XL",
 			"salesStatus": false,
 			"rating": 4.5,
 			"popularity": 88,
-			"blocks": ["New Products Arrival"]
+			"blocks": ["Top Best Sets"]
 		},
 		{
 			"id": "SET018",
 			"name": "Deluxe Family Travel Set",
-			"price": 800,
-			"imageUrl": "images/suitcase-grey.png",
+			"price": 1200,
+			"imageUrl": "images/thumb-2.png",
 			"category": "luggage sets",
-			"color": "grey",
+			"color": "black",
 			"size": "S, M, XL",
 			"salesStatus": false,
 			"rating": 5.0,
 			"popularity": 90,
-			"blocks": []
+			"blocks": ["Top Best Sets"]
 		},
 		{
 			"id": "CO019",
@@ -259,6 +259,58 @@
 			"rating": 4.2,
 			"popularity": 78,
 			"blocks": []
+		},
+		{
+			"id": "SET021",
+			"name": "Deluxe Family Travel Set Red",
+			"price": 1000,
+			"imageUrl": "images/thumb-1.png",
+			"category": "luggage sets",
+			"color": "red",
+			"size": "S, M, XL",
+			"salesStatus": false,
+			"rating": 5.0,
+			"popularity": 90,
+			"blocks": ["Top Best Sets"]
+		},
+		{
+			"id": "SET022",
+			"name": "Deluxe Family Travel Set Light Blue",
+			"price": 2100,
+			"imageUrl": "images/thumb-3.png",
+			"category": "luggage sets",
+			"color": "light blue",
+			"size": "S, M, XL",
+			"salesStatus": false,
+			"rating": 5.0,
+			"popularity": 90,
+			"blocks": ["Top Best Sets"]
+		},
+		{
+			"id": "SET023",
+			"name": "Deluxe Family Travel Set Green",
+			"price": 1100,
+			"imageUrl": "images/thumb-5.png",
+			"category": "luggage sets",
+			"color": "green",
+			"size": "S, M, XL",
+			"salesStatus": false,
+			"rating": 5.0,
+			"popularity": 90,
+			"blocks": ["Top Best Sets"]
+		},
+		{
+			"id": "SU011",
+			"name": "Traveller's Elite Suitcase",
+			"price": 300,
+			"imageUrl": "images/suitcase-small-yellow.png",
+			"category": "suitcases",
+			"color": "yellow",
+			"size": "S",
+			"salesStatus": false,
+			"rating": 4.5,
+			"popularity": 82,
+			"blocks": ["New Products Arrival"]
 		}
 	]
 }

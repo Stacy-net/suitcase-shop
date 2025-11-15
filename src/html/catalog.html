@@ -10,10 +10,61 @@
 </head>
 
 <body>
-  <header></header>
+  <header id="header"></header>
+
+  <section class="catalog">
+    <div class="catalog__container container">
+      <div class="catalog__toolbar">
+        <div class="catalog__results" data-js="results"></div>
+
+        <div class="catalog__controls">
+          <label class="catalog__sort">
+            <div id="sort" class="catalog__dropdown catalog-field" data-js="sort">
+              <button class="catalog__dropdown-btn" type="button" aria-label="Sort options">Default Sorting</button>
+              <ul class="catalog__dropdown-list">
+                <li class="catalog__dropdown-item" data-value="price-asc">Price: Low → High</li>
+                <li class="catalog__dropdown-item" data-value="price-desc">Price: High → Low</li>
+                <li class="catalog__dropdown-item" data-value="newest">Newest</li>
+                <li class="catalog__dropdown-item" data-value="sale">On Sale</li>
+              </ul>
+            </div>
+          </label>
+
+          <form class="catalog__search catalog-field" data-js="search-form">
+            <input id="search-input" class="catalog__search-input" type="search" placeholder="Search Models"
+              aria-label="Search">
+            <button class="catalog__search-btn" type="submit" aria-label="Search">
+              <img src="../assets/images/icons/search.svg" class="search-icon" alt="" aria-hidden="true">
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="catalog__layout">
+        <div class="catalog__grid" data-js="catalog-grid"></div>
+
+        <aside class="catalog__sidebar">
+          <section class="widget widget--best">
+            <h4 class="widget__title">Top Best Sets</h4>
+            <ul class="widget-best__list">
+            </ul>
+          </section>
+        </aside>
+      </div>
+
+      <nav class="catalog__pagination" aria-label="Pagination">
+        <a class="catalog__page is-disabled" href="#" aria-disabled="true">Prev</a>
+        <div>
+        </div>
+        <a class="catalog__page next-btn" href="#">Next</a>
+      </nav>
+
+    </div>
+  </section>
 
 
-  <footer></footer>
+
+  <footer id="footer"></footer>
   <script type="module" src="../js/main.js"></script>
 
 </body>

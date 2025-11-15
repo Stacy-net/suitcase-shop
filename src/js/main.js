@@ -1,13 +1,15 @@
 import { initHome } from './home.js';
 import { initCart } from './cart.js';
+import { initAbout } from './about.js';
+import { initCatalog } from './catalog.js';
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 const SELECTORS = {
-	rootHeader: 'header',
-	rootFooter: 'footer',
+	rootHeader: '#header',
+	rootFooter: '#footer',
 	navLink: '.nav__link',
 	dropdownItem: '.nav__item--dropdown',
 };
@@ -92,11 +94,9 @@ const HEADER_TEMPLATE = `
       </a>
 
       <div class="header__actions">
-        <a href="${buildPath(
-					'html/account.html'
-				)}" class="header__action" aria-label="User account">
+        <button id="user-icon" class="header__action" aria-label="User account">
           <img src="${ASSET('images/icons/user.svg')}" alt="User">
-        </a>
+        </button>
         <a href="${buildPath(
 					'html/cart.html'
 				)}" class="header__action" aria-label="Shopping cart">
@@ -260,6 +260,52 @@ const FOOTER_TEMPLATE = `
   </div>
 `;
 
+const MODAL_TEMPLATE = `
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <h2 class="login-title">Log In</h2>
+      <form id="login-form">
+
+        <div class="form-group">
+          <label for="email" class="form-label">
+            Email Address <span class="required">*</span>
+          </label>
+          <input type="email" class="form-input" id="email-modal" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">
+            Password <span class="required">*</span>
+          </label>
+          <div class="password-wrapper">
+            <input type="password" id="password-modal" name="password" class="form-input" placeholder="Enter your password"
+              required>
+            <span id="password-toggle" class="password-toggle">
+              <img src="${ASSET(
+								'images/icons/eye-icon.svg'
+							)}" alt="Show/Hide Password">
+            </span>
+          </div>
+        </div>
+        <div class="form-info">
+          <div class="form-group">
+            <label for="remember-me">
+              <input type="checkbox" id="remember-me" name="remember-me" class="custom-checkbox">
+              <span class="checkbox-label">Remember me</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <a href="#" class="forgot-password-link">Forgot Your Password?</a>
+          </div>
+        </div>
+
+        <button type="submit" class="login-button btn">Log In</button>
+      </form>
+    </div>
+  </div>
+`;
+
 // ============================================================================
 // NAVIGATION
 // ============================================================================
@@ -309,6 +355,8 @@ const renderSharedHeader = () => {
 	headerEl.innerHTML = HEADER_TEMPLATE;
 	setActiveNavLink(headerEl);
 	initDropdownAria(headerEl);
+
+	headerEl.classList.add('visible');
 };
 
 const renderSharedFooter = () => {
@@ -318,6 +366,50 @@ const renderSharedFooter = () => {
 	footerEl.innerHTML = FOOTER_TEMPLATE;
 };
 
+const renderLoginModal = () => {
+	const body = document.querySelector('body');
+	if (!body) return;
+
+	body.insertAdjacentHTML('beforeend', MODAL_TEMPLATE);
+};
+
+// ============================================================================
+// MODAL LOG IN
+// ============================================================================
+
+const openLoginModal = () => {
+	const modal = document.getElementById('login-modal');
+	const loginForm = modal.querySelector('#login-form');
+
+	modal.style.display = 'block';
+
+	loginForm.addEventListener('submit', (e) => {
+		e.preventDefault();
+		const email = document.getElementById('email').value;
+		const password = document.getElementById('password').value;
+		const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+		if (!email.match(emailRegex)) {
+			alert('Please enter a valid email');
+			return;
+		}
+
+		if (!password) {
+			alert('Password is required');
+			return;
+		}
+
+		alert('Logged in successfully!');
+		modal.style.display = 'none';
+	});
+
+	window.addEventListener('click', (event) => {
+		if (event.target === modal) {
+			modal.style.display = 'none';
+		}
+	});
+};
+
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
@@ -325,8 +417,7 @@ const renderSharedFooter = () => {
 document.addEventListener('DOMContentLoaded', () => {
 	renderSharedHeader();
 	renderSharedFooter();
-
-	initCart();
+	renderLoginModal();
 
 	const isHomePage =
 		window.location.pathname === '/' ||
@@ -335,4 +426,25 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (isHomePage) {
 		initHome();
 	}
+
+	const path = window.location.pathname;
+
+	if (path.includes('about.html')) {
+		initAbout();
+	}
+
+	const userIcon = document.getElementById('user-icon');
+	if (userIcon) {
+		userIcon.addEventListener('click', openLoginModal);
+	}
+
+	if (path.includes('catalog.html')) {
+		initCatalog();
+	}
+
+	if (path.includes('cart.html')) {
+		initCart();
+	}
 });
+
+export { buildPath, ASSET };

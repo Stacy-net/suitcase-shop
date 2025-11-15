@@ -1,3 +1,5 @@
+import { CartManager } from './cart.js';
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -9,23 +11,12 @@ const SELECTORS = {
 	newProducts: '.new-products .selected-products__grid',
 };
 
-const RANDOM_TEXTS = [
-	'Discover the perfect travel companion for your next adventure.',
-	'Premium quality meets exceptional design in every detail.',
-	// ... інші тексти
-];
-
 const DATA_URL = '../assets/data.json';
 const ASSETS_PATH = './assets/';
 
 // ============================================================================
 // UTILITIES
 // ============================================================================
-
-const getRandomText = () => {
-	const index = Math.floor(Math.random() * RANDOM_TEXTS.length);
-	return RANDOM_TEXTS[index];
-};
 
 const fetchProducts = async () => {
 	try {
@@ -51,15 +42,29 @@ const initSuitcasesSlider = () => {
 	const slider = document.querySelector(SELECTORS.slider);
 	if (!slider) return;
 
-	const cards = slider.querySelectorAll(SELECTORS.card);
+	const cards = Array.from(slider.querySelectorAll(SELECTORS.card));
 	if (!cards.length) return;
 
+	let isPaused = false;
+
 	cards.forEach((card) => {
-		const randomTextEl = card.querySelector(SELECTORS.randomText);
-		if (randomTextEl) {
-			randomTextEl.textContent = getRandomText();
-		}
+		card.addEventListener('mouseenter', () => {
+			isPaused = true;
+		});
+
+		card.addEventListener('mouseleave', () => {
+			isPaused = false;
+		});
 	});
+
+	const rotateCards = () => {
+		if (isPaused) return;
+
+		const firstCard = slider.querySelector(SELECTORS.card);
+		slider.appendChild(firstCard);
+	};
+
+	setInterval(rotateCards, 4000);
 };
 
 // ============================================================================
@@ -114,6 +119,8 @@ const renderNewProducts = (products) => {
 // CART FUNCTIONALITY
 // ============================================================================
 
+let allProducts = [];
+
 const initAddToCartButtons = () => {
 	const buttons = document.querySelectorAll('.product-card__button');
 
@@ -126,9 +133,44 @@ const initAddToCartButtons = () => {
 };
 
 const addToCart = (productId) => {
-	console.log(`Adding product ${productId} to cart`);
-	// Тут буде логіка додавання в кошик
-	alert(`Product ${productId} added to cart!`);
+	const product = allProducts.find((p) => p.id === productId);
+
+	if (!product) {
+		console.error('Product not found');
+		console.log(
+			'Available products:',
+			allProducts.map((p) => p.id)
+		);
+		return;
+	}
+
+	CartManager.addToCart(product);
+	showNotification(`${product.name} added to cart!`);
+};
+
+const showNotification = (message) => {
+	const notification = document.createElement('div');
+	notification.className = 'cart-notification';
+	notification.textContent = message;
+	notification.style.cssText = `
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		background: #28a745;
+		color: white;
+		padding: 15px 25px;
+		border-radius: 5px;
+		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		z-index: 9999;
+		animation: slideIn 0.3s ease;
+	`;
+
+	document.body.appendChild(notification);
+
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease';
+		setTimeout(() => notification.remove(), 300);
+	}, 3000);
 };
 
 // ============================================================================
@@ -136,11 +178,13 @@ const addToCart = (productId) => {
 // ============================================================================
 
 export const initHome = async () => {
-	const products = await fetchProducts();
+	allProducts = await fetchProducts();
 
-	renderSelectedProducts(products);
-	renderNewProducts(products);
+	renderSelectedProducts(allProducts);
+	renderNewProducts(allProducts);
 	initAddToCartButtons();
 
 	initSuitcasesSlider();
+
+	CartManager.updateCartCount();
 };
