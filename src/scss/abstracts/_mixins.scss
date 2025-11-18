@@ -1,5 +1,31 @@
+@use './variables' as *;
+
 @mixin flex-center {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+@mixin mobile {
+	@media (max-width: #{$bp-mobile}) {
+		@content;
+	}
+}
+
+@mixin tablet {
+	@media (max-width: #{$bp-tablet}) {
+		@content;
+	}
+}
+
+@mixin desktop {
+	@media (max-width: #{$bp-desktop}) {
+		@content;
+	}
+}
+
+@mixin large {
+	@media (max-width: #{$bp-large}) {
+		@content;
+	}
 }

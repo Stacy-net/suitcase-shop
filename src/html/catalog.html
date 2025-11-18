@@ -12,6 +12,68 @@
 <body>
   <header id="header"></header>
 
+  <div class="catalog-filters">
+    <div class="catalog-filters__container container">
+      <div class="catalog-filters__row">
+        <!-- Size Filter -->
+        <div class="catalog-filters__item">
+          <label class="catalog-filters__label">Size</label>
+          <select class="catalog-filters__select">
+            <option value="">Choose option</option>
+            <option value="S">Small (S)</option>
+            <option value="M">Medium (M)</option>
+            <option value="L">Large (L)</option>
+            <option value="XL">Extra Large (XL)</option>
+          </select>
+        </div>
+
+        <!-- Color Filter -->
+        <div class="catalog-filters__item">
+          <label class="catalog-filters__label">Color</label>
+          <select class="catalog-filters__select">
+            <option value="">Choose option</option>
+            <option value="yellow">Yellow</option>
+            <option value="black">Black</option>
+            <option value="blue">Blue</option>
+            <option value="red">Red</option>
+            <option value="pink">Pink</option>
+          </select>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="catalog-filters__item">
+          <label class="catalog-filters__label">Category</label>
+          <select class="catalog-filters__select">
+            <option value="">Choose option</option>
+            <option value="suitcases">Suitcases</option>
+            <option value="carry-ons">Carry-ons</option>
+            <option value="kids-luggage">Kids' Luggage</option>
+          </select>
+        </div>
+
+        <!-- Sales Checkbox -->
+        <div class="catalog-filters__item catalog-filters__item--checkbox">
+          <label class="catalog-filters__label">Sales</label>
+          <label class="catalog-filters__checkbox">
+            <input type="checkbox" class="catalog-filters__checkbox-input" id="sales-filter">
+            <span class="catalog-filters__checkbox-custom"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="catalog-filters__actions">
+        <button class="btn btn--primary catalog-filters__btn" data-action="clear">
+          CLEAR FILTERS
+        </button>
+        <button class="btn btn--primary catalog-filters__btn" data-action="hide">
+          HIDE FILTERS
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <section class="catalog">
     <div class="catalog__container container">
       <div class="catalog__toolbar">

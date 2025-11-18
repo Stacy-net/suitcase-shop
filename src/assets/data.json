@@ -54,16 +54,16 @@
 		},
 		{
 			"id": "SU005",
-			"name": "Explorer Pro Durable Suitcase",
+			"name": "Explorer Pro Durable Rolling Suitcase",
 			"price": 270,
 			"imageUrl": "images/suitcase-black.png",
 			"category": "suitcases",
 			"color": "black",
 			"size": "M",
-			"salesStatus": false,
+			"salesStatus": true,
 			"rating": 4.0,
 			"popularity": 70,
-			"blocks": []
+			"blocks": ["You May Also Like"]
 		},
 		{
 			"id": "SU006",
@@ -102,7 +102,7 @@
 			"salesStatus": true,
 			"rating": 4.5,
 			"popularity": 89,
-			"blocks": []
+			"blocks": ["You May Also Like"]
 		},
 		{
 			"id": "SU009",
@@ -141,7 +141,7 @@
 			"salesStatus": false,
 			"rating": 4.5,
 			"popularity": 82,
-			"blocks": []
+			"blocks": ["You May Also Like"]
 		},
 		{
 			"id": "SU012",
@@ -154,7 +154,7 @@
 			"salesStatus": false,
 			"rating": 4.8,
 			"popularity": 88,
-			"blocks": ["You May Also Like", "Selected Products"]
+			"blocks": ["Selected Products"]
 		},
 		{
 			"id": "KL013",
@@ -301,7 +301,7 @@
 		},
 		{
 			"id": "SU011",
-			"name": "Traveller's Elite Suitcase",
+			"name": "Traveller's Elite Explorer Suitcase",
 			"price": 300,
 			"imageUrl": "images/suitcase-small-yellow.png",
 			"category": "suitcases",

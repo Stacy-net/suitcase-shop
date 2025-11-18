@@ -24,11 +24,17 @@
 	&__title {
 		font-size: 19px;
 		margin-bottom: 15px;
+		text-align: center;
 	}
 
 	&__price {
 		color: $color-primary;
 		font-size: 19px;
 		margin-bottom: 15px;
+	}
+
+	&__link {
+		@include flex-center;
+		flex-direction: column;
 	}
 }

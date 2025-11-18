@@ -5,6 +5,8 @@
 const CART_STORAGE_KEY = 'suitcase-cart';
 const ASSETS_PATH = '../assets/';
 const SHIPPING_COST = 30;
+const DISCOUNT_THRESHOLD = 3000;
+const DISCOUNT_RATE = 0.1;
 
 const SELECTORS = {
 	cartItems: '.cart__items',
@@ -14,6 +16,8 @@ const SELECTORS = {
 	clearBtn: '.btn-secondary',
 	checkoutBtn: '.cart__checkout-btn',
 	subtotal: '[data-js="subtotal"]',
+	discount: '[data-js="discount"]',
+	discountRow: '[data-js="discount-row"]',
 	shipping: '[data-js="shipping"]',
 	total: '[data-js="total"]',
 	cartCount: '[data-js="cart-count"]',
@@ -88,6 +92,10 @@ export const CartManager = {
 		this.updateCartCount();
 	},
 
+	getDiscount(subtotal) {
+		return subtotal >= DISCOUNT_THRESHOLD ? subtotal * DISCOUNT_RATE : 0;
+	},
+
 	getCartCount() {
 		const cart = this.getCart();
 		return cart.reduce((total, item) => total + item.quantity, 0);
@@ -104,7 +112,13 @@ export const CartManager = {
 
 		cartCountElements.forEach((element) => {
 			element.textContent = count;
-			element.style.display = count > 0 ? 'inline' : 'none';
+			if (count > 0) {
+				element.hidden = false;
+				element.style.display = 'flex';
+			} else {
+				element.hidden = true;
+				element.style.display = 'none';
+			}
 		});
 	},
 };
@@ -168,14 +182,29 @@ const renderCartItems = () => {
 const updateCartSummary = () => {
 	const cart = CartManager.getCart();
 	const subtotal = CartManager.getCartTotal();
+	const discount = CartManager.getDiscount(subtotal);
+	const subtotalAfterDiscount = subtotal - discount;
 	const shipping = cart.length > 0 ? SHIPPING_COST : 0;
-	const total = subtotal + shipping;
+	const total = subtotalAfterDiscount + shipping;
 
 	const subtotalElement = document.querySelector(SELECTORS.subtotal);
+	const discountElement = document.querySelector(SELECTORS.discount);
+	const discountRow = document.querySelector(SELECTORS.discountRow);
 	const shippingElement = document.querySelector(SELECTORS.shipping);
 	const totalElement = document.querySelector(SELECTORS.total);
 
 	if (subtotalElement) subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+	if (discountRow) {
+		if (discount > 0) {
+			discountRow.hidden = false;
+			discountRow.style.display = 'flex';
+			if (discountElement)
+				discountElement.textContent = `$${discount.toFixed(2)}`;
+		} else {
+			discountRow.hidden = true;
+			discountRow.style.display = 'none';
+		}
+	}
 	if (shippingElement) shippingElement.textContent = `$${shipping.toFixed(2)}`;
 	if (totalElement) totalElement.textContent = `$${total.toFixed(2)}`;
 };

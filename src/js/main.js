@@ -2,6 +2,8 @@ import { initHome } from './home.js';
 import { initCart } from './cart.js';
 import { initAbout } from './about.js';
 import { initCatalog } from './catalog.js';
+import { initProduct } from './product.js';
+import { initContactForm } from './contact.js';
 
 // ============================================================================
 // CONSTANTS
@@ -103,6 +105,7 @@ const HEADER_TEMPLATE = `
           <img src="${ASSET(
 						'images/icons/shopping-cart.svg'
 					)}" alt="Shopping cart">
+          <span class="cart-count" data-js="cart-count" hidden>0</span>
         </a>
       </div>
     </div>
@@ -117,6 +120,11 @@ const HEADER_TEMPLATE = `
 						'html/catalog.html'
 					)}" class="nav__link" aria-haspopup="true" aria-expanded="false">
             Catalog
+            <span class="nav__arrow">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.75 0.75L4.75 4.75L0.75 0.75" stroke="#504E4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
           </a>
         </li>
         <li class="nav__item">
@@ -136,34 +144,36 @@ const HEADER_TEMPLATE = `
 
 const FOOTER_TEMPLATE = `
   <div class="footer__benefits">
-    <div class="footer__benefits-inner container">
-      <h3 class="footer__benefits-title">Our Benefits</h3>
-      <ul class="footer__benefits-list">
-        <li class="footer__benefits-item">
-          <img class="footer__benefits-icon" src="${ASSET(
-						'images/icons/benefit-1.svg'
-					)}" alt="benefit-icon">
-          <p class="footer__benefits-text">Velit nisl sodales eget donec quis. volutpat orci.</p>
-        </li>
-        <li class="footer__benefits-item">
-          <img class="footer__benefits-icon" src="${ASSET(
-						'images/icons/benefit-2.svg'
-					)}" alt="benefit-icon">
-          <p class="footer__benefits-text">Dolor eu varius. Morbi fermentum velit nisl.</p>
-        </li>
-        <li class="footer__benefits-item">
-          <img class="footer__benefits-icon" src="${ASSET(
-						'images/icons/benefit-3.svg'
-					)}" alt="benefit-icon">
-          <p class="footer__benefits-text">Malesuada fames ac ante ipsum primis in faucibus.</p>
-        </li>
-        <li class="footer__benefits-item">
-          <img class="footer__benefits-icon" src="${ASSET(
-						'images/icons/benefit-4.svg'
-					)}" alt="benefit-icon">
-          <p class="footer__benefits-text">Nisl sodales eget donec quis, volutpat orci.</p>
-        </li>
-      </ul>
+    <div class="footer__benefits-container container">
+      <div class="footer__benefits-inner">
+        <h3 class="footer__benefits-title">Our Benefits</h3>
+        <ul class="footer__benefits-list">
+          <li class="footer__benefits-item">
+            <img class="footer__benefits-icon" src="${ASSET(
+							'images/icons/benefit-1.svg'
+						)}" alt="benefit-icon">
+            <p class="footer__benefits-text">Velit nisl sodales eget donec quis. volutpat orci.</p>
+          </li>
+          <li class="footer__benefits-item">
+            <img class="footer__benefits-icon" src="${ASSET(
+							'images/icons/benefit-2.svg'
+						)}" alt="benefit-icon">
+            <p class="footer__benefits-text">Dolor eu varius. Morbi fermentum velit nisl.</p>
+          </li>
+          <li class="footer__benefits-item">
+            <img class="footer__benefits-icon" src="${ASSET(
+							'images/icons/benefit-3.svg'
+						)}" alt="benefit-icon">
+            <p class="footer__benefits-text">Malesuada fames ac ante ipsum primis in faucibus.</p>
+          </li>
+          <li class="footer__benefits-item">
+            <img class="footer__benefits-icon" src="${ASSET(
+							'images/icons/benefit-4.svg'
+						)}" alt="benefit-icon">
+            <p class="footer__benefits-text">Nisl sodales eget donec quis, volutpat orci.</p>
+          </li>
+        </ul>
+      </div> 
     </div>
   </div>
 
@@ -445,6 +455,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (path.includes('cart.html')) {
 		initCart();
 	}
+
+	if (path.includes('product-card.html')) {
+		initProduct();
+	}
+
+	initContactForm();
 });
 
 export { buildPath, ASSET };

@@ -34,3 +34,31 @@
 .feedback__text {
 	margin-bottom: 50px;
 }
+
+.form-error {
+	margin-top: 6px;
+	font-size: 13px;
+	color: #d0392b; // error color
+}
+
+.input-error {
+	border-color: #d0392b !important;
+	box-shadow: 0 0 0 3px rgba(208, 57, 43, 0.08);
+}
+
+/* notifications */
+.contact-notification {
+	position: fixed;
+	top: 120px;
+	right: 20px;
+	background: #28a745;
+	color: #fff;
+	padding: 12px 18px;
+	border-radius: 6px;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+	transition: opacity 0.3s ease;
+	opacity: 1;
+}
+.contact-notification--error {
+	background: #dc3545;
+}

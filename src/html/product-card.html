@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Card</title>
+  <link rel="stylesheet" href="../dist/main.css">
+</head>
+
+<body>
+  <header id="header"></header>
+
+  <section class="product-details">
+    <div class="product-details__container container">
+      <div class="product-details__gallery">
+        <div class="product-gallery">
+          <div class="product-gallery__main">
+            <img src="../assets/images/yellow-gallery.jpg" alt="Global Explorer Max Comfort Suitcase Pro"
+              class="product-gallery__main-image">
+          </div>
+          <div class="product-gallery__thumbnails">
+            <button class="product-gallery__thumbnail product-gallery__thumbnail--active">
+              <img src="../assets/images/yellow-thumb-1.png" alt="View 1">
+            </button>
+            <button class="product-gallery__thumbnail">
+              <img src="../assets/images/yellow-thumb-2.png" alt="View 2">
+            </button>
+            <button class="product-gallery__thumbnail">
+              <img src="../assets/images/yellow-thumb-3.png" alt="View 3">
+            </button>
+            <button class="product-gallery__thumbnail">
+              <img src="../assets/images/yellow-thumb-4.png" alt="View 4">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-details__info">
+        <h2 class="product-details__title">Global Explorer Max Comfort Suitcase&nbsp;Pro</h2>
+        <div class="product-details__rating">
+          <div class="product-rating">
+            <span class="product-rating__stars">★★★★★</span>
+            <span class="product-rating__text">(1 Client's Review)</span>
+          </div>
+        </div>
+
+        <div class="product-details__price">$250</div>
+
+        <div class="product-details__description">
+          <p>The new Global Explorer Max Comfort Suitcase Pro is a bold reimagining of travel essentials, designed to
+            elevate every journey. Made with at least 30% recycled materials, its lightweight yet impact-resistant shell
+            combines eco-conscious innovation with rugged durability.</p>
+          <p>The ergonomic handle and GlideMotion spinner wheels ensure effortless mobility while making a statement in
+            sleek design. Inside, the modular compartments and adjustable straps keep your belongings secure and neatly
+            organized, no matter the destination.</p>
+        </div>
+
+        <div class="product-details__options">
+          <div class="product-option">
+            <label class="product-option__label">Size</label>
+            <select class="product-option__select">
+              <option>Choose option</option>
+              <option value="S">Small (S)</option>
+              <option value="M">Medium (M)</option>
+              <option value="L">Large (L)</option>
+              <option value="XL">Extra Large (XL)</option>
+            </select>
+          </div>
+
+          <div class="product-option">
+            <label class="product-option__label">Color</label>
+            <select class="product-option__select">
+              <option>Choose option</option>
+              <option value="yellow">Yellow</option>
+              <option value="black">Black</option>
+              <option value="blue">Blue</option>
+              <option value="red">Red</option>
+            </select>
+          </div>
+
+          <div class="product-option">
+            <label class="product-option__label">Category</label>
+            <select class="product-option__select">
+              <option>Choose option</option>
+              <option value="suitcases">Suitcases</option>
+              <option value="carry-ons">Carry-ons</option>
+              <option value="kids-luggage">Kids' Luggage</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="product-details__actions">
+          <div class="product-quantity">
+            <button class="product-quantity__btn product-quantity__btn--minus">−</button>
+            <input type="number" class="product-quantity__input" value="1" min="1" max="99">
+            <button class="product-quantity__btn product-quantity__btn--plus">+</button>
+          </div>
+          <button class="btn btn--primary product-details__add-to-cart">Add To Cart</button>
+        </div>
+
+        <div class="product-details__payment">
+          <span class="product-details__payment-label">Payment:</span>
+          <div class="product-details__payment-methods">
+            <img src="../assets/images/icons/visa.svg" alt="Visa">
+            <img src="../assets/images/icons/amex.svg" alt="American Express">
+            <img src="../assets/images/icons/mastercard.svg" alt="Mastercard">
+            <img src="../assets/images/icons/paypal.svg" alt="PayPal">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="product-tabs">
+    <div class="container">
+      <div class="product-tabs__header">
+        <button class="product-tabs__tab product-tabs__tab--active" data-tab="details">DETAILS</button>
+        <button class="product-tabs__tab" data-tab="reviews">REVIEWS</button>
+        <button class="product-tabs__tab" data-tab="shipping">SHIPPING POLICY</button>
+      </div>
+
+      <div class="product-tabs__content">
+        <div class="product-tabs__panel product-tabs__panel--active" data-panel="details">
+          <div class="product-details-text">
+            <p>Vestibulum commodo sapien non elit porttitor, vitae volutpat nibh mollis. Nulla porta risus id neque
+              tempor, in efficitur justo imperdiet. Etiam a ex at ante tincidunt imperdiet. Nunc congue ex vel nisl
+              viverra, sit amet aliquet lectus ullamcorper. Praesent luctus lacus non lorem elementum, eu tristique
+              sapien suscipit. Sed bibendum, ipsum nec viverra malesuada, erat nisi sodales purus, eget hendrerit dui
+              ligula eu enim. Ut non est nisi. Pellentesque tristique pretium dolor eu commodo. Proin iaculis nibh vitae
+              lectus mollis bibendum. Quisque varius eget urna sit amet luctus. Suspendisse potenti. Curabitur ac
+              placerat est, sit amet sodales risus. Pellentesque viverra dui auctor, ullamcorper turpis pharetra,
+              facilisis quam.</p>
+
+            <p>Proin iaculis nibh vitae lectus mollis bibendum. Quisque varius eget urna sit amet luctus. Suspendisse
+              potenti. Curabitur ac placerat est, sit amet sodales risus. Pellentesque viverra dui auctor, ullamcorper
+              turpis pharetra, facilisis quam. Proin iaculis nibh vitae lectus mollis bibendum.</p>
+
+            <p>Quisque varius eget urna sit amet luctus. Suspendisse potenti. Curabitur ac placerat est, sit amet
+              sodales risus. Pellentesque viverra dui auctor, ullamcorper turpis pharetra, facilisis quam.</p>
+          </div>
+        </div>
+
+        <div class="product-tabs__panel" data-panel="reviews">
+          <div class="product-reviews">
+
+
+            <div class="product-reviews__list">
+              <div class="product-reviews__header">
+                <h3 class="product-reviews__title">1 review for Global Explorer Max Comfort Suitcase Pro</h3>
+              </div>
+              <div class="review">
+                <div class="review__avatar">
+                  <img src="../assets/images/review-customer.png" alt="Ella Harper">
+                </div>
+                <div class="review__content">
+                  <div class="review__header">
+                    <h4 class="review__author">Ella Harper <span class="review__date">/ June 11, 2025</span></h4>
+
+                    <div class="review__rating">
+                      <span class="review__stars">★★★★☆</span>
+                    </div>
+                  </div>
+
+                  <p class="review__text">Proin iaculis nibh vitae lectus mollis bibendum. Quisque varius eget urna sit
+                    amet luctus. Suspendisse potenti curabitur ac placerat est, sit amet sodales risus.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="product-reviews__form">
+              <h3 class="product-reviews__form-title">Add Review</h3>
+              <p class="product-reviews__form-note">Your email address won't be shared with anybody. Required fields
+                have the symbol *</p>
+
+              <form class="review-form">
+                <div class="review-form__group">
+                  <label class="review-form__label">RATE PRODUCT</label>
+                  <div class="review-form__stars">
+                    <input type="radio" name="rating" value="1" id="star1" class="review-form__star-input">
+                    <label for="star1" class="review-form__star">☆</label>
+
+                    <input type="radio" name="rating" value="2" id="star2" class="review-form__star-input">
+                    <label for="star2" class="review-form__star">☆</label>
+
+                    <input type="radio" name="rating" value="3" id="star3" class="review-form__star-input">
+                    <label for="star3" class="review-form__star">☆</label>
+
+                    <input type="radio" name="rating" value="4" id="star4" class="review-form__star-input">
+                    <label for="star4" class="review-form__star">☆</label>
+
+                    <input type="radio" name="rating" value="5" id="star5" class="review-form__star-input">
+                    <label for="star5" class="review-form__star">☆</label>
+                  </div>
+                </div>
+
+                <div class="review-form__group">
+                  <textarea class="review-form__textarea form-textarea" placeholder="Your Review*" rows="6"
+                    required></textarea>
+                </div>
+
+                <div class="review-form__row">
+                  <div class="review-form__group">
+                    <input type="text" class="review-form__input form-input" placeholder="Your Name*" required>
+                  </div>
+                  <div class="review-form__group">
+                    <input type="email" class="review-form__input form-input " placeholder="Your Email*" required>
+                  </div>
+                </div>
+
+                <div class="review-form__group">
+                  <label class="review-form__checkbox">
+                    <input type="checkbox" class="review-form__checkbox-input">
+                    <span class="review-form__checkbox-text">Save my name, email, and website in this browser for when I
+                      leave another comment.</span>
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn--primary review-form__submit">SUBMIT</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-tabs__panel" data-panel="shipping">
+          <div class="product-details-text">
+            <p>Shipping policy content goes here...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="like-products">
+    <div class="selected-products__container container">
+      <h2 class="selected-products__title title">You May Also Like</h2>
+      <div class="selected-products__grid"></div>
+    </div>
+  </section>
+
+
+  <footer id="footer"></footer>
+  <script type="module" src="../js/main.js"></script>
+
+</body>
+
+</html>

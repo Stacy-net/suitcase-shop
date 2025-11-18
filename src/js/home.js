@@ -11,8 +11,8 @@ const SELECTORS = {
 	newProducts: '.new-products .selected-products__grid',
 };
 
-const DATA_URL = '../assets/data.json';
-const ASSETS_PATH = './assets/';
+const DATA_URL = '/assets/data.json';
+const ASSETS_PATH = '/assets/';
 
 // ============================================================================
 // UTILITIES
@@ -78,12 +78,14 @@ const createProductCard = (product) => {
 
 	return `
     <div class="product-card" data-id="${product.id}">
-      <div class="product-card__image">
-        <img src="${ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
-        ${saleBadge}
-      </div>
+			<a href="/html/product-card.html?id=${product.id}" class="product-card__link">
+      	<div class="product-card__image">
+      	  <img src="${ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
+      	  ${saleBadge}
+      	</div>
+				<h3 class="product-card__title">${product.name}</h3>
+			</a>
       <div class="product-card__details">
-        <h3 class="product-card__title">${product.name}</h3>
         <div class="product-card__price">$${product.price}</div>
         <button class="product-card__button btn btn--medium" data-id="${product.id}">
           Add To Cart
@@ -154,7 +156,7 @@ const showNotification = (message) => {
 	notification.textContent = message;
 	notification.style.cssText = `
 		position: fixed;
-		top: 20px;
+		top: 120px;
 		right: 20px;
 		background: #28a745;
 		color: white;
@@ -187,4 +189,11 @@ export const initHome = async () => {
 	initSuitcasesSlider();
 
 	CartManager.updateCartCount();
+};
+
+export {
+	filterProductsByBlock,
+	renderProducts,
+	fetchProducts,
+	initAddToCartButtons,
 };

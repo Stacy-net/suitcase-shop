@@ -13,6 +13,9 @@ const SELECTORS = {
 	dropdown: '.catalog__dropdown',
 	dropdownBtn: '.catalog__dropdown-btn',
 	dropdownItems: '.catalog__dropdown-item',
+	navCatalog: '.nav__item--dropdown',
+	filtersBlock: '.catalog-filters',
+	hideBtn: '[data-action="hide"]',
 };
 
 const DATA_URL = '../assets/data.json';
@@ -25,6 +28,14 @@ const ASSETS_PATH = '../assets/';
 let allProducts = [];
 let currentPage = 1;
 let currentSortType = 'default';
+let searchTerm = '';
+
+let filters = {
+	size: '',
+	color: '',
+	category: '',
+	salesStatus: null,
+};
 
 // ============================================================================
 // UTILITIES
@@ -85,6 +96,22 @@ const sortProducts = (products, sortType) => {
 };
 
 // ============================================================================
+// FILTERING FUNCTIONALITY
+// ============================================================================
+const applyFiltersChain = (products) => {
+	return products.filter((item) => {
+		const matchesSize = !filters.size || item.size === filters.size;
+		const matchesColor = !filters.color || item.color === filters.color;
+		const matchesCategory =
+			!filters.category || item.category === filters.category;
+		const matchesSales =
+			filters.salesStatus === null || item.salesStatus === filters.salesStatus;
+
+		return matchesSize && matchesColor && matchesCategory && matchesSales;
+	});
+};
+
+// ============================================================================
 // RENDER FUNCTIONS
 // ============================================================================
 
@@ -94,7 +121,7 @@ const createProductCard = (product) => {
 		: '';
 
 	return `
-    <div class="product-card" data-id="${product.id}">
+    <a href="/html/product-card.html?id=${product.id}" class="product-card" data-id="${product.id}">
       <div class="product-card__image">
         <img src="${ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
         ${saleBadge}
@@ -106,7 +133,7 @@ const createProductCard = (product) => {
           Add To Cart
         </button>
       </div>
-    </div>
+    </a>
   `;
 };
 
@@ -213,16 +240,23 @@ const handlePageChange = async (page) => {
 	);
 
 	// Застосовуємо сортування
-	const sortedProducts = sortProducts(remainingProducts, currentSortType);
+	// const sortedProducts = sortProducts(remainingProducts, currentSortType);
+	let processed = filterProductsBySearch(remainingProducts, searchTerm);
+	processed = applyFiltersChain(processed);
+	processed = sortProducts(processed, currentSortType);
 
-	const totalPages = Math.ceil(sortedProducts.length / 12);
+	const totalPages = Math.ceil(processed.length / 12);
+
+	if (processed.length === 0) {
+		showNotFoundPopup();
+	}
 
 	if (page < 1 || page > totalPages) return;
 
 	currentPage = page;
-	const paginatedProducts = paginateProducts(sortedProducts, currentPage);
+	const paginatedProducts = paginateProducts(processed, currentPage);
 
-	updateResultsText(sortedProducts.length, currentPage, 12);
+	updateResultsText(processed.length, currentPage, 12);
 	renderBestSets(bestSets);
 	renderProducts(paginatedProducts);
 	renderPagination(totalPages, currentPage);
@@ -236,10 +270,38 @@ const initSearch = () => {
 	const searchForm = document.querySelector('[data-js="search-form"]');
 	if (!searchForm) return;
 
+	const input = document.querySelector(SELECTORS.searchInput);
+
 	searchForm.addEventListener('submit', (event) => {
 		event.preventDefault();
+		searchTerm = input.value.trim();
 		handlePageChange(1);
 	});
+};
+
+const showNotFoundPopup = () => {
+	const popup = document.createElement('div');
+	popup.className = 'cart-notification';
+	popup.textContent = 'Product not found';
+	popup.style.cssText = `
+		position: fixed;
+		top: 120px;
+		right: 20px;
+		background: #dc3545;
+		color: white;
+		padding: 15px 25px;
+		border-radius: 5px;
+		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		z-index: 9999;
+		animation: slideIn 0.3s ease;
+	`;
+
+	document.body.appendChild(popup);
+
+	setTimeout(() => {
+		popup.style.animation = 'slideOut 0.3s ease';
+		setTimeout(() => popup.remove(), 100);
+	}, 2000);
 };
 
 // ============================================================================
@@ -251,6 +313,8 @@ const initAddToCartButtons = () => {
 
 	buttons.forEach((button) => {
 		button.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
 			const productId = e.target.getAttribute('data-id');
 			addToCart(productId);
 		});
@@ -275,7 +339,7 @@ const showNotification = (message) => {
 	notification.textContent = message;
 	notification.style.cssText = `
 		position: fixed;
-		top: 20px;
+		top: 120px;
 		right: 20px;
 		background: #28a745;
 		color: white;
@@ -290,8 +354,8 @@ const showNotification = (message) => {
 
 	setTimeout(() => {
 		notification.style.animation = 'slideOut 0.3s ease';
-		setTimeout(() => notification.remove(), 300);
-	}, 3000);
+		setTimeout(() => notification.remove(), 100);
+	}, 2000);
 };
 
 // ============================================================================
@@ -334,6 +398,99 @@ const initDropdown = () => {
 };
 
 // ============================================================================
+// FILTER SELECTS + CHECKBOX
+// ============================================================================
+const initCatalogFilters = () => {
+	const selects = document.querySelectorAll('.catalog-filters__select');
+	const salesCheckbox = document.querySelector('#sales-filter');
+	const clearBtn = document.querySelector('[data-action="clear"]');
+
+	if (!selects.length) return;
+
+	selects.forEach((select) => {
+		select.addEventListener('change', () => {
+			const type = select.previousElementSibling.textContent
+				.trim()
+				.toLowerCase();
+
+			if (type === 'size') filters.size = select.value;
+			if (type === 'color') filters.color = select.value;
+			if (type === 'category') filters.category = select.value;
+
+			handlePageChange(1);
+		});
+	});
+
+	if (salesCheckbox) {
+		salesCheckbox.addEventListener('change', () => {
+			filters.salesStatus = salesCheckbox.checked ? true : null;
+			handlePageChange(1);
+		});
+	}
+
+	if (clearBtn) {
+		clearBtn.addEventListener('click', () => {
+			selects.forEach((select) => (select.value = ''));
+			if (salesCheckbox) salesCheckbox.checked = false;
+
+			filters = {
+				size: '',
+				color: '',
+				category: '',
+				salesStatus: null,
+			};
+
+			handlePageChange(1);
+		});
+	}
+};
+
+// ============================================================================
+// SHOW/HIDE FILTERS ON HOVER (catalog.html only)
+// ============================================================================
+
+const initCatalogFiltersShowHide = () => {
+	// Працюємо тільки на сторінці catalog.html
+	if (!window.location.pathname.includes('catalog.html')) return;
+
+	const navCatalog = document.querySelector(SELECTORS.navCatalog);
+	const filtersBlock = document.querySelector(SELECTORS.filtersBlock);
+	const hideBtn = document.querySelector(SELECTORS.hideBtn);
+
+	if (!navCatalog || !filtersBlock || !hideBtn) return;
+
+	let isManuallyHidden = false;
+
+	// Старт: приховано
+	filtersBlock.classList.add('is-hidden');
+
+	// Показуємо по hover на Catalog
+	navCatalog.addEventListener('mouseenter', () => {
+		if (!isManuallyHidden) {
+			filtersBlock.classList.remove('is-hidden');
+		}
+	});
+
+	// Якщо миша переходить на сам блок фільтрів — НЕ ховаємо
+	filtersBlock.addEventListener('mouseenter', () => {
+		if (!isManuallyHidden) {
+			filtersBlock.classList.remove('is-hidden');
+		}
+	});
+
+	// Hide button — ховає фільтри повністю, поки користувач не наведе знову на Catalog
+	hideBtn.addEventListener('click', () => {
+		isManuallyHidden = true;
+		filtersBlock.classList.add('is-hidden');
+
+		// Повернути показ при наступному hover
+		setTimeout(() => {
+			isManuallyHidden = false;
+		}, 300);
+	});
+};
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
@@ -354,6 +511,8 @@ export const initCatalog = async () => {
 	updateResultsText(remainingProducts.length, currentPage, 12);
 	initSearch();
 	initDropdown();
+	initCatalogFilters();
+	initCatalogFiltersShowHide();
 
 	CartManager.updateCartCount();
 };
