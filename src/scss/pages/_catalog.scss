@@ -16,7 +16,7 @@
 
 .catalog__controls {
 	display: flex;
-	gap: 50px;
+	gap: 30px;
 	align-items: center;
 }
 
@@ -33,14 +33,12 @@
 
 .catalog__dropdown-btn {
 	width: 100%;
-	background-color: $color-white;
 	color: $color-primary;
 	cursor: pointer;
 	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	background: url(../../assets/images/icons/arrow-down.svg) no-repeat;
+	background: url('../../assets/images/icons/arrow-down.svg') no-repeat;
 	background-position: right 5px center;
+	background-color: $color-white;
 	text-align: left;
 }
 
@@ -74,6 +72,15 @@
 
 .catalog__search-input {
 	padding: 0;
+
+	&:focus {
+		outline: none;
+		background-color: #fff;
+	}
+
+	&::-webkit-search-cancel-button {
+		appearance: none;
+	}
 }
 
 .catalog__search-btn {
@@ -99,8 +106,7 @@
 .catalog__grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	column-gap: 11px;
-	row-gap: 50px;
+	gap: 50px 11px;
 	margin-bottom: 60px;
 }
 
@@ -112,22 +118,26 @@
 	display: grid;
 	gap: 14px;
 }
+
 .widget-best__link {
 	display: grid;
 	grid-template-columns: 87px 1fr;
 	gap: 12px;
 	align-items: center;
 }
+
 .widget-best__thumb {
 	width: 87px;
 	height: 87px;
 	object-fit: cover;
 }
+
 .widget-best__name {
 	font-size: 15px;
 	line-height: 1.35;
 	margin-bottom: 4px;
 }
+
 .widget-best__rating {
 	font-size: 12px;
 	color: #f2b01e;
@@ -152,10 +162,12 @@
 		text-align: center;
 		border-radius: 6px;
 	}
+
 	.is-active {
 		background-color: $color-accent;
 		color: $color-white;
 	}
+
 	.is-disabled {
 		visibility: hidden;
 		pointer-events: none;
@@ -170,25 +182,35 @@
 		width: 88px;
 		font-size: 12px;
 		text-transform: uppercase;
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		border: 2px solid $color-accent;
 	}
 
 	.next-btn {
-		background: url(../../assets/images/icons/arrow-right.svg) no-repeat;
+		background: url('../../assets/images/icons/arrow-right.svg') no-repeat;
 		background-position: right 10px center;
 	}
+
 	.prev-btn {
-		background: url(../../assets/images/icons/arrow-left.svg) no-repeat;
+		background: url('../../assets/images/icons/arrow-left.svg') no-repeat;
 		background-position: left 10px center;
 	}
 }
 
 // catalog-filters
 
+.catalog__filter-btn {
+	&:hover {
+		border-color: $color-accent;
+	}
+}
+
 .catalog-filters {
 	padding: 30px 0;
 	margin-bottom: 40px;
+	opacity: 1;
+	visibility: visible;
+	transition: all 0.6s ease;
 
 	&__container {
 		max-width: 1200px;
@@ -226,7 +248,7 @@
 	}
 
 	&__label {
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		color: $color-primary;
 	}
 
@@ -252,7 +274,7 @@
 		&:focus {
 			outline: none;
 			border-color: $color-accent;
-			box-shadow: 0 0 0 3px rgba(196, 54, 110, 0.1);
+			box-shadow: 0 0 0 3px rgb(196 54 110 / 10%);
 		}
 	}
 
@@ -265,6 +287,16 @@
 		user-select: none;
 		width: 20px;
 		height: 20px;
+	}
+
+	&__checkbox-custom {
+		position: relative;
+		width: 20px;
+		height: 20px;
+		border: 3px solid $color-secondary;
+		border-radius: 50%;
+		background: $color-white;
+		transition: all 0.3s ease;
 	}
 
 	&__checkbox-input {
@@ -284,16 +316,6 @@
 		}
 	}
 
-	&__checkbox-custom {
-		position: relative;
-		width: 20px;
-		height: 20px;
-		border: 3px solid $color-secondary;
-		border-radius: 50%;
-		background: $color-white;
-		transition: all 0.3s ease;
-	}
-
 	&__actions {
 		display: flex;
 		gap: 15px;
@@ -307,7 +329,7 @@
 		min-width: 200px;
 		padding: 20px 60px;
 		font-size: 15px;
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		letter-spacing: 0.5px;
 
 		@include mobile {
@@ -317,13 +339,6 @@
 	}
 }
 
-.catalog-filters {
-	opacity: 1;
-	visibility: visible;
-	transition: all 0.6s ease;
-}
-
-/* Повністю прихований — місця не займає */
 .catalog-filters.is-hidden {
 	display: none;
 	opacity: 0;
@@ -331,7 +346,6 @@
 	pointer-events: none;
 }
 
-/* Коли показується — даємо можливість opacity плавно зʼявитися */
 .catalog-filters.is-animating {
 	display: block;
 	opacity: 0;
@@ -341,4 +355,49 @@
 .catalog-filters.is-animating.is-visible {
 	opacity: 1;
 	visibility: visible;
+}
+
+@include desktop {
+	.catalog__layout {
+		grid-template-columns: 1fr;
+	}
+
+	.catalog__sidebar {
+		display: none;
+	}
+
+	.catalog__search {
+		width: 240px;
+	}
+}
+
+@include tablet {
+	.catalog {
+		padding-top: $spacing-xlarge;
+	}
+
+	.catalog__grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.catalog__controls {
+		flex-direction: column-reverse;
+		gap: 20px;
+	}
+
+	.catalog__search {
+		width: 200px;
+	}
+
+	.catalog__toolbar {
+		flex-direction: column-reverse;
+		gap: $spacing-large;
+	}
+}
+
+@include mobile {
+	.catalog__filter {
+		display: block;
+		width: 200px;
+	}
 }

@@ -15,12 +15,12 @@
 
 body {
 	font-family: $font-family-base;
-	font-weight: 400;
-	font-size: 17px;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-base;
 }
 
 section {
-	padding-bottom: 120px;
+	padding-bottom: $spacing-section;
 }
 
 .container {
@@ -32,23 +32,24 @@ section {
 .title {
 	text-align: center;
 	font-size: 40px;
-	font-weight: 900;
-	margin-bottom: 10px;
+	font-weight: $font-weight-bolder;
+	margin-bottom: $spacing-small;
 }
 
 .subtitle {
 	text-align: center;
 	color: $color-primary;
-	margin-bottom: 60px;
+	margin-bottom: $spacing-xxlarge;
 }
 
 .hidden {
 	display: none;
 }
+
 /* Hero */
 
 .hero {
-	padding-bottom: 20px;
+	padding-bottom: $spacing-medium;
 }
 
 .hero__top {
@@ -58,8 +59,10 @@ section {
 	z-index: 1;
 	padding: 0 16px;
 }
+
 .hero__top-content {
 	@include flex-center;
+
 	max-width: 1300px;
 	margin: 0 auto;
 	padding-top: 116px;
@@ -67,23 +70,25 @@ section {
 
 .hero__title-main {
 	font-size: 50px;
-	font-weight: 900;
-	margin-bottom: 30px;
+	font-weight: $font-weight-bolder;
+	margin-bottom: $spacing-large;
 }
 
 .hero__text {
 	color: $color-primary;
-	margin-bottom: 30px;
+	margin-bottom: $spacing-large;
 }
 
 .hero__bottom-content {
 	position: relative;
 	top: -100px;
 	height: 566px;
+
 	@include flex-center;
+
 	max-width: 1300px;
 	margin: 0 auto;
-	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+	box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
 	z-index: 9;
 }
 
@@ -111,8 +116,8 @@ section {
 
 .hero__bottom-right {
 	flex: 1;
-	background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-		url(../assets/images/suitcases-main-banner.png) no-repeat center / cover;
+	background: linear-gradient(rgb(0 0 0 / 40%), rgb(0 0 0 / 40%)),
+		url('../assets/images/suitcases-main-banner.png') no-repeat center / cover;
 	height: 100%;
 }
 
@@ -138,7 +143,7 @@ section {
 
 	.hero__discount-title {
 		font-size: 40px;
-		font-weight: 900;
+		font-weight: $font-weight-bolder;
 		margin-bottom: 30px;
 	}
 
@@ -166,10 +171,11 @@ section {
 
 	&:hover {
 		transform: scale(1.05);
-		box-shadow: 0px 3px 15px -4px #000000;
+		box-shadow: 0 3px 15px -4px #000;
 		z-index: 5;
 	}
 }
+
 .suitcase-card__media {
 	position: relative;
 	height: 100%;
@@ -189,20 +195,21 @@ section {
 	flex-direction: column;
 	justify-content: flex-end;
 	padding: 24px;
-	background: rgba(0, 0, 0, 0.2);
+	background: rgb(0 0 0 / 20%);
 	transition: all 0.3s ease;
 
 	&:hover {
-		background: rgba(0, 0, 0, 0.4);
+		background: rgb(0 0 0 / 40%);
 	}
 }
 
 .suitcase-card__headline {
 	margin: 0 0 8px;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 	font-size: 19px;
 	color: $color-white;
 }
+
 .suitcase-card__text {
 	font-size: 15px;
 	color: #e8eaf1;
@@ -224,8 +231,8 @@ section {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-			url(../assets/images/banner-image.png) no-repeat center / cover;
+		background: linear-gradient(rgb(0 0 0 / 40%), rgb(0 0 0 / 40%)),
+			url('../assets/images/banner-image.png') no-repeat center / cover;
 		height: 407px;
 		padding: 30px 100px;
 	}
@@ -238,6 +245,7 @@ section {
 
 	&__discount {
 		font-size: 223px;
+		font-weight: $font-weight-bolder;
 		line-height: 1;
 	}
 
@@ -274,21 +282,23 @@ section {
 .testimonials {
 	&__wrapper {
 		@include flex-center;
+
 		gap: 20px;
 		height: 100%;
 	}
 
 	&__card {
 		@include flex-center;
+
 		flex-direction: column;
 		padding: 30px;
 		max-width: 420px;
 		width: 100%;
 		height: 336px;
 		text-align: center;
-		background: #ffffff;
-		filter: drop-shadow(0px 20px 80px rgba(193, 199, 212, 0.702));
-		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+		background: #fff;
+		filter: drop-shadow(0 20px 80px rgb(193 199 212 / 70.2%));
+		box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
 	}
 
 	&__image {
@@ -302,7 +312,7 @@ section {
 
 	&__info {
 		color: $color-accent;
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 	}
 }
 
@@ -315,7 +325,7 @@ section {
 	top: 0;
 	width: 100%;
 	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgb(0 0 0 / 50%);
 	align-items: center;
 	justify-content: center;
 	padding: 20px;
@@ -331,7 +341,7 @@ section {
 	border-radius: 10px;
 	width: 480px;
 	max-width: 100%;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
 }
 
 .modal .form-label {
@@ -370,7 +380,7 @@ section {
 .forgot-password-link {
 	color: $color-accent;
 	font-size: 12px;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 }
 
 .custom-checkbox {
@@ -386,37 +396,90 @@ section {
 	display: inline-block;
 }
 
-.checkbox-label:before {
+.checkbox-label::before {
 	content: '';
 	position: absolute;
 	left: 0;
 	top: 0;
 	width: 16px;
 	height: 16px;
-	background-color: #fff;
+	background-color: $color-white;
 	border: 2px solid $color-light-grey;
 	opacity: 0.5;
 	transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.custom-checkbox:checked + .checkbox-label:before {
+.custom-checkbox:checked + .checkbox-label::before {
 	background-color: $color-primary;
 	border-color: $color-primary;
 }
 
-.custom-checkbox:checked + .checkbox-label:after {
+.custom-checkbox:checked + .checkbox-label::after {
 	content: '\2713';
 	position: absolute;
 	left: 4px;
 	top: 0;
 	font-size: 12px;
-	color: #fff;
+	color: $color-white;
 }
 
-@media screen and (max-width: 1440px) {
+.cart-notification {
+	position: fixed;
+	top: 120px;
+	right: 20px;
+	padding: 15px 25px;
+	border-radius: 5px;
+	box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
+	z-index: 9999;
+	animation: slide-in 0.3s ease;
+	color: $color-white;
+}
+
+.cart-notification--success {
+	background: $color-success;
+}
+
+.cart-notification--error {
+	background: $color-error;
+}
+
+.cart-notification--info {
+	background: $color-info;
+}
+
+.cart-notification--hiding {
+	animation: slide-out 0.3s ease;
+}
+
+@keyframes slide-in {
+	from {
+		transform: translateX(400px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slide-out {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+
+	to {
+		transform: translateX(400px);
+		opacity: 0;
+	}
+}
+
+@include large {
 	.hero__top {
 		min-height: 761px;
 	}
+
 	.selected-products__grid {
 		grid-template-columns: 1fr 1fr;
 		justify-items: center;
@@ -425,39 +488,17 @@ section {
 	.hero__bottom-left-inner {
 		padding: 40px;
 	}
+
 	.banner__container {
 		padding: 30px;
 	}
-
-	.footer__contacts-inner {
-		gap: 50px;
-	}
-	.footer__contact-rows {
-		grid-template-columns: 1fr;
-		row-gap: 20px;
-	}
-
-	.footer__contact-row:first-child {
-		grid-template-columns: 28px auto;
-		row-gap: 20px;
-	}
 }
 
-@media screen and (max-width: 1024px) {
-	.header__wrapper {
-		padding: 30px 16px 0;
-	}
-	.header__top {
-		padding-bottom: 30px;
-	}
-
-	.nav__list {
-		padding: 15px 0;
-	}
-
+@include desktop {
 	.hero__top-content {
 		padding-top: 60px;
 	}
+
 	.hero__bottom-title {
 		font-size: 32px;
 	}
@@ -472,5 +513,117 @@ section {
 
 	.banner__discount {
 		font-size: 150px;
+	}
+
+	.suitcases__slider {
+		padding: 30px 40px;
+	}
+}
+
+@include tablet {
+	section {
+		padding-bottom: $spacing-xlarge;
+	}
+
+	.title {
+		font-size: $font-size-xxlarge;
+	}
+
+	.hero {
+		padding-bottom: 200px;
+	}
+
+	.hero__top {
+		min-height: 661px;
+	}
+
+	.hero__top-content,
+	.hero__bottom-content,
+	.banner__container {
+		flex-direction: column;
+	}
+
+	.banner__container {
+		height: auto;
+		text-align: center;
+	}
+
+	.hero__top-inner {
+		text-align: center;
+	}
+
+	.hero__title-main {
+		font-size: 40px;
+	}
+
+	.hero__bottom-content {
+		top: 0;
+	}
+
+	.hero__bottom-title {
+		font-size: $font-size-xxlarge;
+	}
+
+	.hero__image {
+		max-width: 320px;
+		width: 100%;
+		margin: 20px 0 0 -35px;
+	}
+
+	.hero__discount-box {
+		padding: $spacing-xlarge;
+	}
+
+	.suitcases__slider {
+		padding: 20px 10px;
+		gap: 25px;
+	}
+
+	.suitcase-card {
+		min-width: 200px;
+	}
+
+	.banner__discount {
+		font-size: 80px;
+	}
+
+	.banner__right-inner {
+		padding-left: 0;
+	}
+
+	.testimonials__wrapper {
+		flex-direction: column;
+	}
+}
+
+@include mobile {
+	.subtitle {
+		margin-bottom: $spacing-large;
+	}
+
+	.hero__top-content {
+		padding-top: $spacing-xlarge;
+	}
+
+	.hero__title-main {
+		font-size: $font-size-xxlarge;
+	}
+
+	.hero__image {
+		max-width: 280px;
+		width: 100%;
+		margin: 20px 0 0 -35px;
+	}
+
+	.hero__bottom-left-inner {
+		padding: 20px;
+	}
+
+	.hero__bottom-title {
+		font-size: $font-size-large;
+	}
+
+	.selected-products__grid {
+		grid-template-columns: 1fr;
 	}
 }

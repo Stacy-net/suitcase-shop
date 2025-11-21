@@ -14,14 +14,43 @@ const SELECTORS = {
 	rootFooter: '#footer',
 	navLink: '.nav__link',
 	dropdownItem: '.nav__item--dropdown',
+	userIcon: '#user-icon',
+	loginModal: '#login-modal',
+	loginForm: '#login-form',
+	emailInput: '#email-modal',
+	passwordInput: '#password-modal',
+	passwordToggle: '#password-toggle',
+	burger: '[data-js="burger"]',
+	nav: '.header__nav',
 };
 
 const CLASSES = {
 	navLinkActive: 'nav__link--active',
+	headerVisible: 'visible',
+	modalOpen: 'modal--open',
+	burgerActive: 'burger--active',
+	navOpen: 'header__nav--open',
+	bodyNoScroll: 'body--no-scroll',
 };
 
 const ATTR = {
 	ariaExpanded: 'aria-expanded',
+};
+
+const VALIDATION = {
+	emailRegex: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+};
+
+const PAGE_PATHS = {
+	home: ['/', 'index.html'],
+	about: 'about.html',
+	catalog: 'catalog.html',
+	cart: 'cart.html',
+	product: 'product-card.html',
+};
+
+const BURGER_CONFIG = {
+	MOBILE_BREAKPOINT: 480,
 };
 
 // ============================================================================
@@ -58,6 +87,16 @@ const normalizePathname = (rawHref) => {
 
 const getCurrentPathname = () => normalizePathname(location.pathname);
 
+const isCurrentPage = (pageName) => {
+	const path = window.location.pathname;
+
+	if (Array.isArray(pageName)) {
+		return pageName.some((p) => path === p || path.endsWith(p));
+	}
+
+	return path.includes(pageName);
+};
+
 // ============================================================================
 // ASSET UTILITIES
 // ============================================================================
@@ -72,6 +111,12 @@ const ASSET = (relPath) => new URL(relPath, ASSETS_BASE_URL).pathname;
 const HEADER_TEMPLATE = `
   <div class="header__wrapper">
     <div class="header__top">
+      <button class="burger" data-js="burger" aria-label="Toggle menu" aria-expanded="false">
+        <span class="burger__line"></span>
+        <span class="burger__line"></span>
+        <span class="burger__line"></span>
+      </button>
+
       <div class="header__socials">
         <a href="#" class="social-link" aria-label="Facebook">
           <img src="${ASSET('images/icons/facebook.svg')}" alt="Facebook">
@@ -83,8 +128,9 @@ const HEADER_TEMPLATE = `
           <img src="${ASSET('images/icons/instagram.svg')}" alt="Instagram">
         </a>
       </div>
+      
 
-      <a href="${buildPath('/')}">
+      <a class="header__logo-link" href="${buildPath('/')}">
         <div class="header__logo">
           <div class="header__logo-image">
             <img src="${ASSET(
@@ -94,6 +140,7 @@ const HEADER_TEMPLATE = `
           <div class="header__logo-title">BEST SHOP</div>
         </div>
       </a>
+
 
       <div class="header__actions">
         <button id="user-icon" class="header__action" aria-label="User account">
@@ -108,9 +155,12 @@ const HEADER_TEMPLATE = `
           <span class="cart-count" data-js="cart-count" hidden>0</span>
         </a>
       </div>
+      
     </div>
 
     <nav class="header__nav" aria-label="Header navigation">
+      
+
       <ul class="nav__list">
         <li class="nav__item">
           <a href="${buildPath('/')}" class="nav__link">Home</a>
@@ -181,7 +231,9 @@ const FOOTER_TEMPLATE = `
     <div class="footer__contacts-inner container">
       <nav class="footer__menu" aria-label="Footer navigation">
         <div class="footer__menu-col">
-          <h4 class="footer__menu-title">About Us</h4>
+          <a href="${buildPath(
+						'html/about.html'
+					)}" class="footer-link"><h4 class="footer__menu-title">About Us</h4></a>
           <ul class="footer__menu-list">
             <li class="footer__menu-link"><a href="#">Organisation</a></li>
             <li class="footer__menu-link"><a href="#">Partners</a></li>
@@ -209,8 +261,10 @@ const FOOTER_TEMPLATE = `
       </nav>
 
       <section class="footer__contact">
-        <h4 class="footer__contact-title">Contact Us</h4>
-        <p class="footer__contact-intro">
+        <a href="${buildPath(
+					'html/contact.html'
+				)}" class="footer-link"><h4 class="footer__contact-title">Contact Us</h4>
+        <p class="footer__contact-intro"></a>
           Bendum dolor eu varius. Morbi fermentum velitsodales egetonec. volutpat orci.
           Sed ipsum felis, tristique egestas et, convallis ac velitn consequat nec luctus.
         </p>
@@ -223,7 +277,8 @@ const FOOTER_TEMPLATE = `
 							)}" alt="" aria-hidden="true">
             </span>
             <a class="footer__contact-value" href="tel:+632366322">Phone: (+63) 236 6322</a>
-
+          </li>
+          <li class="footer__contact-row">
             <span class="footer__contact-icon">
               <img src="${ASSET(
 								'images/icons/mail.svg'
@@ -355,6 +410,123 @@ const initDropdownAria = (headerRoot) => {
 };
 
 // ============================================================================
+// BURGER MENU
+// ============================================================================
+
+let isBurgerMenuOpen = false;
+
+const isMobileView = () => window.innerWidth < BURGER_CONFIG.MOBILE_BREAKPOINT;
+
+const toggleBodyScroll = (shouldLock) => {
+	const body = document.querySelector(SELECTORS.rootBody);
+	if (body) {
+		body.classList.toggle(CLASSES.bodyNoScroll, shouldLock);
+	}
+};
+
+const openBurgerMenu = (burger, nav) => {
+	isBurgerMenuOpen = true;
+	burger.classList.add(CLASSES.burgerActive);
+	nav.classList.add(CLASSES.navOpen);
+	burger.setAttribute(ATTR.ariaExpanded, 'true');
+	toggleBodyScroll(true);
+};
+
+const closeBurgerMenu = (burger, nav) => {
+	isBurgerMenuOpen = false;
+	burger.classList.remove(CLASSES.burgerActive);
+	nav.classList.remove(CLASSES.navOpen);
+	burger.setAttribute(ATTR.ariaExpanded, 'false');
+	toggleBodyScroll(false);
+};
+
+const toggleBurgerMenu = (burger, nav) => {
+	if (isBurgerMenuOpen) {
+		closeBurgerMenu(burger, nav);
+	} else {
+		openBurgerMenu(burger, nav);
+	}
+};
+
+const handleBurgerClick = (e, burger, nav) => {
+	e.stopPropagation();
+	toggleBurgerMenu(burger, nav);
+};
+
+const handleBurgerOutsideClick = (e, burger, nav) => {
+	if (!isBurgerMenuOpen || !isMobileView()) return;
+
+	const isClickInsideNav = nav.contains(e.target);
+	const isClickOnBurger = burger.contains(e.target);
+
+	if (!isClickInsideNav && !isClickOnBurger) {
+		closeBurgerMenu(burger, nav);
+	}
+};
+
+const handleNavLinkClickInBurger = (burger, nav) => {
+	if (isMobileView()) {
+		closeBurgerMenu(burger, nav);
+	}
+};
+
+const handleBurgerResize = (burger, nav) => {
+	if (!isMobileView() && isBurgerMenuOpen) {
+		closeBurgerMenu(burger, nav);
+	}
+};
+
+const handleBurgerEscape = (e, burger, nav) => {
+	if (e.key === 'Escape' && isBurgerMenuOpen) {
+		closeBurgerMenu(burger, nav);
+	}
+};
+
+const initBurgerMenu = () => {
+	const burger = document.querySelector(SELECTORS.burger);
+	const nav = document.querySelector(SELECTORS.nav);
+
+	if (!burger || !nav) {
+		console.warn('Burger menu elements not found');
+		return null;
+	}
+
+	const onBurgerClick = (e) => handleBurgerClick(e, burger, nav);
+	const onOutsideClick = (e) => handleBurgerOutsideClick(e, burger, nav);
+	const onResize = () => handleBurgerResize(burger, nav);
+	const onEscape = (e) => handleBurgerEscape(e, burger, nav);
+
+	burger.addEventListener('click', onBurgerClick);
+	document.addEventListener('click', onOutsideClick);
+	window.addEventListener('resize', onResize);
+	document.addEventListener('keydown', onEscape);
+
+	const navLinks = nav.querySelectorAll(SELECTORS.navLink);
+	navLinks.forEach((link) => {
+		link.addEventListener('click', () =>
+			handleNavLinkClickInBurger(burger, nav)
+		);
+	});
+
+	return () => {
+		burger.removeEventListener('click', onBurgerClick);
+		document.removeEventListener('click', onOutsideClick);
+		window.removeEventListener('resize', onResize);
+		document.removeEventListener('keydown', onEscape);
+
+		navLinks.forEach((link) => {
+			link.removeEventListener('click', () =>
+				handleNavLinkClickInBurger(burger, nav)
+			);
+		});
+
+		if (isBurgerMenuOpen) {
+			closeBurgerMenu(burger, nav);
+		}
+	};
+};
+
+// ============================================================================
 // RENDER
 // ============================================================================
 
@@ -387,80 +559,141 @@ const renderLoginModal = () => {
 // MODAL LOG IN
 // ============================================================================
 
+const validateEmail = (email) => {
+	return VALIDATION.emailRegex.test(email);
+};
+
+const validatePassword = (password) => {
+	return password && password.trim().length > 0;
+};
+
+const initPasswordToggle = () => {
+	const passwordToggle = document.querySelector(SELECTORS.passwordToggle);
+	const passwordInput = document.querySelector(SELECTORS.passwordInput);
+
+	if (!passwordToggle || !passwordInput) return;
+
+	passwordToggle.addEventListener('click', () => {
+		const type = passwordInput.type === 'password' ? 'text' : 'password';
+		passwordInput.type = type;
+		passwordToggle.classList.toggle('password-toggle--visible');
+	});
+};
+
+const closeLoginModal = () => {
+	const modal = document.querySelector(SELECTORS.loginModal);
+	if (modal) {
+		modal.style.display = 'none';
+		modal.classList.remove(CLASSES.modalOpen);
+	}
+};
+
 const openLoginModal = () => {
-	const modal = document.getElementById('login-modal');
-	const loginForm = modal.querySelector('#login-form');
+	const modal = document.querySelector(SELECTORS.loginModal);
+	const loginForm = modal?.querySelector(SELECTORS.loginForm);
+
+	if (!modal || !loginForm) return;
 
 	modal.style.display = 'block';
+	modal.classList.add(CLASSES.modalOpen);
 
-	loginForm.addEventListener('submit', (e) => {
+	initPasswordToggle();
+
+	const handleSubmit = (e) => {
 		e.preventDefault();
-		const email = document.getElementById('email').value;
-		const password = document.getElementById('password').value;
-		const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
-		if (!email.match(emailRegex)) {
+		const emailInput = document.querySelector(SELECTORS.emailInput);
+		const passwordInput = document.querySelector(SELECTORS.passwordInput);
+
+		const email = emailInput?.value || '';
+		const password = passwordInput?.value || '';
+
+		if (!validateEmail(email)) {
 			alert('Please enter a valid email');
+			emailInput?.focus();
 			return;
 		}
 
-		if (!password) {
+		if (!validatePassword(password)) {
 			alert('Password is required');
+			passwordInput?.focus();
 			return;
 		}
 
 		alert('Logged in successfully!');
-		modal.style.display = 'none';
-	});
+		closeLoginModal();
+		loginForm.reset();
+	};
 
+	loginForm.removeEventListener('submit', handleSubmit);
+	loginForm.addEventListener('submit', handleSubmit);
+};
+
+const initModalOutsideClick = () => {
 	window.addEventListener('click', (event) => {
+		const modal = document.querySelector(SELECTORS.loginModal);
 		if (event.target === modal) {
-			modal.style.display = 'none';
+			closeLoginModal();
 		}
 	});
+};
+
+// ============================================================================
+// PAGE ROUTING
+// ============================================================================
+
+const initCurrentPage = () => {
+	if (isCurrentPage(PAGE_PATHS.home)) {
+		initHome();
+	}
+
+	if (isCurrentPage(PAGE_PATHS.about)) {
+		initAbout();
+	}
+
+	if (isCurrentPage(PAGE_PATHS.catalog)) {
+		initCatalog();
+	}
+
+	if (isCurrentPage(PAGE_PATHS.cart)) {
+		initCart();
+	}
+
+	if (isCurrentPage(PAGE_PATHS.product)) {
+		initProduct();
+	}
+
+	initContactForm();
 };
 
 // ============================================================================
 // INITIALIZATION
 // ============================================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+let cleanupBurger = null;
+
+const initApp = () => {
 	renderSharedHeader();
 	renderSharedFooter();
 	renderLoginModal();
 
-	const isHomePage =
-		window.location.pathname === '/' ||
-		window.location.pathname.endsWith('index.html');
+	cleanupBurger = initBurgerMenu();
 
-	if (isHomePage) {
-		initHome();
-	}
-
-	const path = window.location.pathname;
-
-	if (path.includes('about.html')) {
-		initAbout();
-	}
-
-	const userIcon = document.getElementById('user-icon');
+	const userIcon = document.querySelector(SELECTORS.userIcon);
 	if (userIcon) {
 		userIcon.addEventListener('click', openLoginModal);
 	}
 
-	if (path.includes('catalog.html')) {
-		initCatalog();
-	}
+	initModalOutsideClick();
+	initCurrentPage();
+};
 
-	if (path.includes('cart.html')) {
-		initCart();
+window.addEventListener('beforeunload', () => {
+	if (cleanupBurger) {
+		cleanupBurger();
 	}
-
-	if (path.includes('product-card.html')) {
-		initProduct();
-	}
-
-	initContactForm();
 });
+
+document.addEventListener('DOMContentLoaded', initApp);
 
 export { buildPath, ASSET };

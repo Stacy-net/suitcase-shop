@@ -10,7 +10,7 @@
 		gap: 60px;
 		align-items: start;
 
-		@media (max-width: 992px) {
+		@media (width <= 992px) {
 			grid-template-columns: 1fr;
 			gap: 40px;
 		}
@@ -18,7 +18,7 @@
 
 	&__title {
 		font-size: 30px;
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		margin-bottom: 15px;
 	}
 
@@ -28,21 +28,21 @@
 
 	&__price {
 		font-size: 20px;
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		margin-bottom: 40px;
 	}
 
 	&__description {
 		margin-bottom: 70px;
 		color: $color-primary;
+	}
 
-		p {
-			margin-bottom: 30px;
-			line-height: 1.6;
+	&__text {
+		margin-bottom: 30px;
+		line-height: 1.6;
 
-			&:last-child {
-				margin-bottom: 0;
-			}
+		&:last-child {
+			margin-bottom: 0;
 		}
 	}
 
@@ -55,7 +55,7 @@
 		gap: 15px;
 		margin-bottom: 30px;
 
-		@media (max-width: 576px) {
+		@media (width <= 576px) {
 			flex-direction: column;
 		}
 	}
@@ -74,7 +74,7 @@
 	}
 
 	&__payment-label {
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		color: $color-light-grey;
 		font-size: 23px;
 	}
@@ -93,11 +93,12 @@
 .product-gallery {
 	&__main {
 		@include flex-center;
+
 		margin-bottom: 10px;
 	}
 
 	&__main-image {
-		max-width: 100%;
+		width: 100%;
 		height: auto;
 		object-fit: contain;
 	}
@@ -107,7 +108,7 @@
 		grid-template-columns: repeat(4, 1fr);
 		gap: 15px;
 
-		@media (max-width: 576px) {
+		@media (width <= 576px) {
 			grid-template-columns: repeat(4, 1fr);
 			gap: 10px;
 		}
@@ -139,6 +140,11 @@
 		color: #ffc107;
 		font-size: 18px;
 		letter-spacing: 2px;
+		fill: #dcdcdc;
+
+		&.active {
+			fill: #ffc107;
+		}
 	}
 
 	&__text {
@@ -162,10 +168,9 @@
 		padding: 12px 15px;
 		border: 2px solid $color-secondary;
 		font-size: 15px;
-		background: #fff;
 		cursor: pointer;
 		appearance: none;
-		background: url(../../assets/images/icons/arrow-down.svg) no-repeat;
+		background: url('../../assets/images/icons/arrow-down.svg') no-repeat;
 		background-position: right 10px center;
 	}
 }
@@ -178,7 +183,7 @@
 	width: 130px;
 	color: $color-light-grey;
 	font-size: 25px;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 
 	&__btn {
 		width: 40px;
@@ -196,7 +201,7 @@
 
 		&::-webkit-outer-spin-button,
 		&::-webkit-inner-spin-button {
-			-webkit-appearance: none;
+			appearance: none;
 			margin: 0;
 		}
 
@@ -209,10 +214,11 @@
 .product-tabs {
 	&__header {
 		@include flex-center;
+
 		gap: 115px;
 		margin-bottom: 30px;
 
-		@media (max-width: 768px) {
+		@media (width <= 768px) {
 			gap: 30px;
 			overflow-x: auto;
 		}
@@ -222,7 +228,7 @@
 		background: none;
 		border: none;
 		padding: 10px 0;
-		font-weight: 700;
+		font-weight: $font-weight-bold;
 		cursor: pointer;
 		position: relative;
 		transition: color 0.3s ease;
@@ -231,7 +237,7 @@
 		&::after {
 			content: '';
 			position: absolute;
-			bottom: 0px;
+			bottom: 0;
 			left: 0;
 			right: 0;
 			height: 2px;
@@ -254,16 +260,17 @@
 
 		&--active {
 			display: block;
-			animation: fadeIn 0.3s ease;
+			animation: fade-in 0.3s ease;
 		}
 	}
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
 	from {
 		opacity: 0;
 		transform: translateY(10px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
@@ -287,6 +294,7 @@
 // Product Reviews
 .product-reviews {
 	@include flex-center;
+
 	align-items: flex-start;
 	gap: 145px;
 
@@ -388,8 +396,8 @@
 	&__stars {
 		display: flex;
 		gap: 5px;
-		flex-direction: row-reverse;
-		justify-content: flex-end;
+		// flex-direction: row-reverse;
+		// justify-content: flex-end;
 	}
 
 	&__star-input {
@@ -401,48 +409,35 @@
 		color: #ddd;
 		cursor: pointer;
 		transition: color 0.2s ease;
-
-		&:hover,
-		&:hover ~ & {
-			color: #ffc107;
-		}
 	}
 
-	&__star-input:checked ~ &__star {
+	&__star:hover {
 		color: #ffc107;
 	}
 
-	// &__textarea,
-	// &__input {
-	// 	width: 100%;
-	// 	padding: 12px 15px;
-	// 	border: 1px solid #ddd;
-	// 	border-radius: 4px;
-	// 	font-size: 15px;
-	// 	font-family: inherit;
-	// 	transition: border-color 0.3s ease;
+	&.active {
+		color: #ffc107;
+	}
 
-	// 	&::placeholder {
-	// 		color: #999;
-	// 	}
+	&__star-input:checked + &__star {
+		color: #ffc107;
+	}
 
-	// 	&:focus {
-	// 		outline: none;
-	// 		border-color: $color-primary;
-	// 	}
-	// }
+	&__star-input:checked + &__star ~ &__star {
+		color: #ffc107;
+	}
 
-	// &__textarea {
-	// 	resize: vertical;
-	// 	min-height: 120px;
-	// }
+	&__star:hover,
+	&__star:has(~ &__star:hover) {
+		color: #ffc107;
+	}
 
 	&__row {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 20px;
 
-		@media (max-width: 576px) {
+		@media (width <= 576px) {
 			grid-template-columns: 1fr;
 		}
 	}
@@ -467,5 +462,11 @@
 
 	&__submit {
 		padding: 12px 40px;
+	}
+}
+
+@include mobile {
+	.product-details__payment-methods {
+		flex-wrap: wrap;
 	}
 }

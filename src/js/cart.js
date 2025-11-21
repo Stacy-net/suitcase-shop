@@ -3,10 +3,14 @@
 // ============================================================================
 
 const CART_STORAGE_KEY = 'suitcase-cart';
-const ASSETS_PATH = '../assets/';
-const SHIPPING_COST = 30;
-const DISCOUNT_THRESHOLD = 3000;
-const DISCOUNT_RATE = 0.1;
+
+const CONFIG = {
+	ASSETS_PATH: '../assets/',
+	SHIPPING_COST: 30,
+	DISCOUNT_THRESHOLD: 3000,
+	DISCOUNT_RATE: 0.1,
+	MIN_QUANTITY: 1,
+};
 
 const SELECTORS = {
 	cartItems: '.cart__items',
@@ -31,6 +35,9 @@ const MESSAGES = {
 	checkout: 'Proceeding to checkout...',
 	removeOnZero: 'Remove this item from cart?',
 };
+const ROUTES = {
+	catalog: '/html/catalog.html',
+};
 
 // ============================================================================
 // CART MANAGER
@@ -46,19 +53,19 @@ export const CartManager = {
 		localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
 	},
 
-	addToCart(product) {
+	addToCart(product, quantity = 1) {
 		const cart = this.getCart();
 		const existingItem = cart.find((item) => item.id === product.id);
 
 		if (existingItem) {
-			existingItem.quantity += 1;
+			existingItem.quantity += quantity;
 		} else {
 			cart.push({
 				id: product.id,
 				name: product.name,
 				price: product.price,
 				imageUrl: product.imageUrl,
-				quantity: 1,
+				quantity: quantity,
 			});
 		}
 
@@ -80,7 +87,7 @@ export const CartManager = {
 		const item = cart.find((item) => item.id === productId);
 
 		if (item) {
-			item.quantity = Math.max(1, quantity);
+			item.quantity = Math.max(CONFIG.MIN_QUANTITY, quantity);
 			this.saveCart(cart);
 		}
 
@@ -93,7 +100,9 @@ export const CartManager = {
 	},
 
 	getDiscount(subtotal) {
-		return subtotal >= DISCOUNT_THRESHOLD ? subtotal * DISCOUNT_RATE : 0;
+		return subtotal >= CONFIG.DISCOUNT_THRESHOLD
+			? subtotal * CONFIG.DISCOUNT_RATE
+			: 0;
 	},
 
 	getCartCount() {
@@ -111,15 +120,33 @@ export const CartManager = {
 		const count = this.getCartCount();
 
 		cartCountElements.forEach((element) => {
-			element.textContent = count;
-			if (count > 0) {
-				element.hidden = false;
-				element.style.display = 'flex';
-			} else {
-				element.hidden = true;
-				element.style.display = 'none';
-			}
+			this._updateCartCountElement(element, count);
 		});
+	},
+
+	_updateCartCountElement(element, count) {
+		element.textContent = count;
+		const shouldShow = count > 0;
+		element.hidden = !shouldShow;
+		element.style.display = shouldShow ? 'flex' : 'none';
+	},
+
+	calculateCartSummary() {
+		const cart = this.getCart();
+		const subtotal = this.getCartTotal();
+		const discount = this.getDiscount(subtotal);
+		const subtotalAfterDiscount = subtotal - discount;
+		const shipping = cart.length > 0 ? CONFIG.SHIPPING_COST : 0;
+		const total = subtotalAfterDiscount + shipping;
+
+		return {
+			subtotal,
+			discount,
+			subtotalAfterDiscount,
+			shipping,
+			total,
+			hasItems: cart.length > 0,
+		};
 	},
 };
 
@@ -128,27 +155,20 @@ export const CartManager = {
 // ============================================================================
 
 const createCartItemHTML = (item) => {
+	const itemTotal = (item.price * item.quantity).toFixed(2);
 	return `
     <div class="cart__item" data-id="${item.id}">
-      <img src="${ASSETS_PATH}${item.imageUrl}" alt="${
-		item.name
-	}" class="cart__item-image">
+      <img src="${CONFIG.ASSETS_PATH}${item.imageUrl}" alt="${item.name}" class="cart__item-image">
       <div class="cart__item-name">${item.name}</div>
       <div class="cart__item-price">$${item.price}</div>
       <div class="cart__quantity">
-        <button class="cart__quantity-btn" data-action="decrease" data-id="${
-					item.id
-				}">−</button>
+        <button class="cart__quantity-btn" data-action="decrease" data-id="${item.id}">−</button>
         <span class="cart__quantity-value">${item.quantity}</span>
-        <button class="cart__quantity-btn" data-action="increase" data-id="${
-					item.id
-				}">+</button>
+        <button class="cart__quantity-btn" data-action="increase" data-id="${item.id}">+</button>
       </div>
-      <div class="cart__item-total">$${(item.price * item.quantity).toFixed(
-				2
-			)}</div>
+      <div class="cart__item-total">$${itemTotal}</div>
       <button class="cart__delete-btn" data-id="${item.id}">
-        <img src="../assets/images/icons/trash.svg" alt="Delete icon">
+        <img src="${CONFIG.ASSETS_PATH}images/icons/trash.svg" alt="Delete icon">
       </button>
     </div>
   `;
@@ -176,39 +196,44 @@ const renderCartItems = () => {
 
 	cartItemsContainer.innerHTML = cart.map(createCartItemHTML).join('');
 	initCartControls();
+
 	updateCartSummary();
 };
 
 const updateCartSummary = () => {
-	const cart = CartManager.getCart();
-	const subtotal = CartManager.getCartTotal();
-	const discount = CartManager.getDiscount(subtotal);
-	const subtotalAfterDiscount = subtotal - discount;
-	const shipping = cart.length > 0 ? SHIPPING_COST : 0;
-	const total = subtotalAfterDiscount + shipping;
+	const summary = CartManager.calculateCartSummary();
 
-	const subtotalElement = document.querySelector(SELECTORS.subtotal);
-	const discountElement = document.querySelector(SELECTORS.discount);
-	const discountRow = document.querySelector(SELECTORS.discountRow);
-	const shippingElement = document.querySelector(SELECTORS.shipping);
-	const totalElement = document.querySelector(SELECTORS.total);
+	updateElement(SELECTORS.subtotal, `$${summary.subtotal.toFixed(2)}`);
+	updateElement(SELECTORS.shipping, `$${summary.shipping.toFixed(2)}`);
+	updateElement(SELECTORS.total, `$${summary.total.toFixed(2)}`);
 
-	if (subtotalElement) subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-	if (discountRow) {
-		if (discount > 0) {
-			discountRow.hidden = false;
-			discountRow.style.display = 'flex';
-			if (discountElement)
-				discountElement.textContent = `$${discount.toFixed(2)}`;
-		} else {
-			discountRow.hidden = true;
-			discountRow.style.display = 'none';
-		}
-	}
-	if (shippingElement) shippingElement.textContent = `$${shipping.toFixed(2)}`;
-	if (totalElement) totalElement.textContent = `$${total.toFixed(2)}`;
+	toggleDiscountRow(summary.discount);
 };
 
+const updateElement = (selector, value) => {
+	const element = document.querySelector(selector);
+	if (element) {
+		element.textContent = value;
+	}
+};
+
+const toggleDiscountRow = (discount) => {
+	const discountRow = document.querySelector(SELECTORS.discountRow);
+	const discountElement = document.querySelector(SELECTORS.discount);
+
+	if (!discountRow) return;
+
+	if (discount > 0) {
+		discountRow.hidden = false;
+		discountRow.style.display = 'flex';
+		if (discountElement) {
+			discountElement.textContent = `$${discount.toFixed(2)}`;
+		}
+	} else {
+		discountRow.hidden = true;
+		discountRow.style.display = 'none';
+	}
+};
 // ============================================================================
 // EVENT HANDLERS
 // ============================================================================
@@ -221,7 +246,7 @@ const handleQuantityChange = (productId, action) => {
 	const newQuantity =
 		action === 'increase' ? item.quantity + 1 : item.quantity - 1;
 
-	if (newQuantity > 0) {
+	if (newQuantity > CONFIG.MIN_QUANTITY) {
 		CartManager.updateQuantity(productId, newQuantity);
 		renderCartItems();
 	} else {
@@ -240,7 +265,7 @@ const handleDeleteItem = (productId) => {
 };
 
 const handleContinueShopping = () => {
-	window.location.href = '../catalog.html';
+	window.location.href = ROUTES.catalog;
 };
 
 const handleClearCart = () => {
@@ -259,7 +284,6 @@ const handleCheckout = () => {
 	}
 
 	alert(MESSAGES.checkout);
-	// Тут можна додати редірект на сторінку оформлення замовлення
 };
 
 // ============================================================================
@@ -267,21 +291,23 @@ const handleCheckout = () => {
 // ============================================================================
 
 const initCartControls = () => {
-	// Кнопки зміни кількості
-	document.querySelectorAll(SELECTORS.quantityBtn).forEach((btn) => {
-		btn.addEventListener('click', (e) => {
-			const productId = e.currentTarget.dataset.id;
-			const action = e.currentTarget.dataset.action;
-			handleQuantityChange(productId, action);
-		});
-	});
+	const cartItemsContainer = document.querySelector(SELECTORS.cartItems);
+	if (!cartItemsContainer) return;
 
-	// Кнопки видалення
-	document.querySelectorAll(SELECTORS.deleteBtn).forEach((btn) => {
-		btn.addEventListener('click', (e) => {
-			const productId = e.currentTarget.dataset.id;
+	cartItemsContainer.addEventListener('click', (e) => {
+		const quantityBtn = e.target.closest(SELECTORS.quantityBtn);
+		const deleteBtn = e.target.closest(SELECTORS.deleteBtn);
+
+		if (quantityBtn) {
+			const productId = quantityBtn.dataset.id;
+			const action = quantityBtn.dataset.action;
+			handleQuantityChange(productId, action);
+		}
+
+		if (deleteBtn) {
+			const productId = deleteBtn.dataset.id;
 			handleDeleteItem(productId);
-		});
+		}
 	});
 };
 

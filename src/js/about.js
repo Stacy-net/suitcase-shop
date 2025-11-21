@@ -1,4 +1,5 @@
 import { buildPath } from './main.js';
+import { CartManager } from './cart.js';
 
 export function initAbout() {
 	const aboutButton = document.getElementById('about-button');
@@ -9,4 +10,6 @@ export function initAbout() {
 			window.location.href = path;
 		});
 	}
+
+	CartManager.updateCartCount();
 }

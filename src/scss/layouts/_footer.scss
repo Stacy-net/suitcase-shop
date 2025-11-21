@@ -27,13 +27,14 @@
 		background-repeat: repeat-y;
 	}
 }
+
 .footer__benefits-inner {
 	padding: 40px 0;
 }
 
 .footer__benefits-title {
 	font-size: 19px;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 	margin-bottom: 30px;
 }
 
@@ -65,8 +66,7 @@
 	grid-template-areas:
 		'menu     contact'
 		'shipping contact';
-	column-gap: 170px;
-	row-gap: 50px;
+	gap: 50px 170px;
 	align-items: start;
 }
 
@@ -103,8 +103,7 @@
 .footer__contact-rows {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	column-gap: 20px;
-	row-gap: 30px;
+	gap: 30px 20px;
 	align-items: start;
 }
 
@@ -115,23 +114,84 @@
 	column-gap: 14px;
 }
 
-.footer__contact-row:first-child {
-	grid-column: 1 / -1;
-	grid-template-columns: 28px auto 28px auto;
-	column-gap: 14px;
-	align-items: center;
-}
-
 .footer__shipping-text {
 	line-height: 1.7;
-}
-
-.footer__contact-row:last-child .footer__contact-icon {
-	transform: translateX(8px);
 }
 
 .footer__copy {
 	text-align: center;
 	opacity: 0.35;
 	padding-bottom: 45px;
+}
+
+.footer-link:hover {
+	color: $color-accent;
+}
+
+@include large {
+	.footer__contacts-inner {
+		gap: 50px;
+	}
+
+	.footer__contact-rows {
+		row-gap: 20px;
+	}
+
+	.footer__contact-row:first-child {
+		grid-template-columns: 28px auto;
+		row-gap: 20px;
+	}
+}
+
+@include desktop {
+	.footer__benefits-list {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.footer__contact-rows {
+		grid-template-columns: 1fr;
+	}
+}
+
+@include tablet {
+	.footer__benefits {
+		margin-bottom: $spacing-xlarge;
+	}
+
+	.footer__contacts-inner {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			'menu'
+			'contact'
+			'shipping';
+		gap: 30px;
+	}
+
+	.footer__contact-rows {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+@include mobile {
+	.footer__benefits-title {
+		text-align: center;
+	}
+
+	.footer__benefits-list {
+		grid-template-columns: 1fr;
+		max-width: 300px;
+		margin: 0 auto;
+	}
+
+	.footer__contact-rows {
+		grid-template-columns: 1fr;
+	}
+
+	.footer__menu {
+		display: none;
+	}
+
+	.footer__contact-intro {
+		margin-bottom: $spacing-xlarge;
+	}
 }

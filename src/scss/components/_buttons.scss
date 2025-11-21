@@ -5,8 +5,8 @@
 	background-color: $color-accent;
 	padding: 18px 25px;
 	color: $color-white;
-	font-size: 18px;
-	font-weight: 700;
+	font-size: $font-size-large;
+	font-weight: $font-weight-bold;
 
 	&--small {
 		padding: 7px 10px;

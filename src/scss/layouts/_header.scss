@@ -16,8 +16,9 @@
 }
 
 .header__wrapper {
-	padding: 48px 16px 0;
+	padding: 48px 20px 0;
 }
+
 .header__top {
 	display: flex;
 	justify-content: space-between;
@@ -31,17 +32,23 @@
 
 .header__socials {
 	@include flex-center;
+
 	gap: 25px;
 }
 
 .header__logo {
 	display: flex;
+	align-items: center;
 	gap: 12px;
+}
+
+.header__logo-link {
+	order: 2;
 }
 
 .header__logo-title {
 	color: $color-accent;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 	font-size: 30px;
 }
 
@@ -59,6 +66,8 @@
 
 .header__actions {
 	@include flex-center;
+
+	order: 3;
 	gap: 16px;
 }
 
@@ -77,13 +86,14 @@
 	background: $color-white;
 	color: $color-accent;
 	border: 3px solid $color-accent;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 	font-size: 14px;
 	line-height: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
+
 .cart-count[hidden] {
 	display: none;
 }
@@ -92,18 +102,20 @@
 	text-align: center;
 	padding: 40px 0;
 	font-size: 20px;
-	font-weight: 700;
+	font-weight: $font-weight-bold;
 }
 
 .nav__list {
 	@include flex-center;
+
+	text-align: center;
 	gap: 29px;
 	padding: 25px 0;
 }
 
 .nav__item {
-	font-size: 18px;
-	font-weight: 700;
+	font-size: $font-size-large;
+	font-weight: $font-weight-bold;
 
 	&:hover {
 		color: $color-accent;
@@ -123,4 +135,160 @@
 
 .nav__link--active {
 	color: $color-accent;
+}
+
+// ============================================================================
+// BURGER MENU
+// ============================================================================
+
+.burger {
+	display: none;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 30px;
+	height: 24px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	z-index: 1001;
+}
+
+.burger__line {
+	width: 100%;
+	height: 3px;
+	background-color: $color-accent;
+	border-radius: 2px;
+	transition: all 0.3s ease;
+	transform-origin: center;
+}
+
+.burger--active {
+	.burger__line:nth-child(1) {
+		transform: translateY(10.5px) rotate(45deg);
+	}
+
+	.burger__line:nth-child(2) {
+		opacity: 0;
+		transform: translateX(-10px);
+	}
+
+	.burger__line:nth-child(3) {
+		transform: translateY(-10.5px) rotate(-45deg);
+	}
+}
+
+// ============================================================================
+// MOBILE NAVIGATION
+// ============================================================================
+
+@include mobile {
+	.header__nav {
+		position: fixed;
+		top: 0;
+		right: -100%;
+		width: 280px;
+		height: 100vh;
+		background-color: $color-white;
+		box-shadow: -2px 0 10px rgb(0 0 0 / 10%);
+		transition: right 0.3s ease;
+		z-index: 1000;
+		overflow-y: auto;
+	}
+
+	.header__nav--open {
+		left: 0;
+	}
+
+	.nav__list {
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 80px 30px 30px;
+		gap: 0;
+	}
+
+	.nav__item {
+		width: 100%;
+		padding: 15px 0;
+		border-bottom: 1px solid #e0e0e0;
+		font-size: $font-size-large;
+
+		&:last-child {
+			border-bottom: none;
+		}
+	}
+
+	.nav__link {
+		display: block;
+		width: 100%;
+	}
+
+	// Блокуємо скрол body коли меню відкрите
+	.body--no-scroll {
+		overflow: hidden;
+	}
+}
+
+// ============================================================================
+// RESPONSIVE UPDATES
+// ============================================================================
+
+@include desktop {
+	.header__wrapper {
+		padding: 30px 20px 0;
+	}
+
+	.header__top {
+		padding-bottom: 30px;
+	}
+
+	.nav__list {
+		padding: 15px 0;
+	}
+}
+
+@include tablet {
+	.header__socials {
+		gap: 15px;
+	}
+
+	.header__logo-image {
+		width: 25px;
+		height: 25px;
+	}
+
+	.header__logo {
+		align-items: center;
+	}
+
+	.header__logo-title {
+		font-size: $font-size-xlarge;
+	}
+}
+
+@include mobile {
+	.header__socials {
+		display: none;
+	}
+
+	.nav__list {
+		padding: 80px 10px 10px;
+	}
+
+	.header__top {
+		position: relative;
+	}
+
+	.burger {
+		display: flex;
+		order: 2;
+	}
+
+	.header__actions {
+		order: 2;
+	}
+
+	.nav__item--dropdown .nav__link {
+		justify-content: center;
+	}
 }

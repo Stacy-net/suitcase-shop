@@ -6,15 +6,34 @@ $color-black: #000;
 $color-white: #fff;
 $color-bg: #e7e8e9;
 $color-light-grey: #727174;
-
+$color-error: #d0392b;
+$color-success: #28a745;
+$color-background-notification: #dc3545;
+$color-info: #17a2b8;
+$shadow-default: 0px 4px 4px rgb(0 0 0 / 25%);
+$shadow-card: 0px 3px 15px -4px #000;
+$shadow-testimonial: 0px 20px 80px rgb(193 199 212 / 70.2%);
+$spacing-small: 10px;
+$spacing-medium: 20px;
+$spacing-large: 30px;
+$spacing-xlarge: 40px;
+$spacing-xxlarge: 60px;
+$spacing-section: 120px;
+$border-radius-default: 5px;
+$border-width-default: 2px;
+$transition-duration: 0.3s;
 $font-family-base: 'Montserrat', sans-serif;
-$font-size-base: 16px;
+$font-size-base: 17px;
+$font-size-small: 14px;
+$font-size-medium: 15px;
+$font-size-large: 18px;
+$font-size-xlarge: 25px;
+$font-size-xxlarge: 30px;
 $font-weight-regular: 400;
 $font-weight-bold: 700;
-
+$font-weight-bolder: 900;
 $bp-mobile: 480px;
 $bp-tablet: 768px;
 $bp-desktop: 1024px;
 $bp-large: 1440px;
-
 $transition-default: all 0.3s ease;

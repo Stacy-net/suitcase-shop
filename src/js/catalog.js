@@ -1,3 +1,9 @@
+import {
+	createCartHandler,
+	showNotification,
+	NotificationType,
+	CONFIG as HOME_CONFIG,
+} from './home.js';
 import { CartManager } from './cart.js';
 
 // ============================================================================
@@ -10,31 +16,70 @@ const SELECTORS = {
 	sidebarBestSets: '.widget-best__list',
 	resultsText: '.catalog__results',
 	searchInput: '#search-input',
+	searchForm: '[data-js="search-form"]',
 	dropdown: '.catalog__dropdown',
 	dropdownBtn: '.catalog__dropdown-btn',
 	dropdownItems: '.catalog__dropdown-item',
-	navCatalog: '.nav__item--dropdown',
+	navFilter: '.catalog__filter-btn',
 	filtersBlock: '.catalog-filters',
+	filterSelects: '.catalog-filters__select',
+	salesCheckbox: '#sales-filter',
 	hideBtn: '[data-action="hide"]',
+	clearBtn: '[data-action="clear"]',
+	addToCartButton: '.product-card__button',
+	prevBtn: '.prev-btn',
+	nextBtn: '.next-btn',
+	catalogPage: '.catalog__page',
 };
 
-const DATA_URL = '../assets/data.json';
-const ASSETS_PATH = '../assets/';
+const CONFIG = {
+	...HOME_CONFIG,
+	DATA_URL: '../assets/data.json',
+	ITEMS_PER_PAGE: 12,
+	NOTIFICATION_DURATION_MS: 2000,
+	ANIMATION_DURATION_MS: 100,
+};
+
+// const DATA_URL = '../assets/data.json';
+// const ASSETS_PATH = '../assets/';
+
+const CSS_CLASSES = {
+	dropdownOpen: 'open',
+	filtersHidden: 'is-hidden',
+	paginationActive: 'is-active',
+	paginationDisabled: 'is-disabled',
+};
+
+const SORT_TYPES = {
+	DEFAULT: 'default',
+	PRICE_ASC: 'price-asc',
+	PRICE_DESC: 'price-desc',
+	NEWEST: 'newest',
+	SALE: 'sale',
+	POPULARITY: 'popularity',
+	RATING: 'rating',
+};
+
+const BLOCK_NAMES = {
+	BEST_SETS: 'Top Best Sets',
+};
 
 // ============================================================================
 // STATE
 // ============================================================================
 
-let allProducts = [];
-let currentPage = 1;
-let currentSortType = 'default';
-let searchTerm = '';
-
-let filters = {
-	size: '',
-	color: '',
-	category: '',
-	salesStatus: null,
+const catalogState = {
+	allProducts: [],
+	currentPage: 1,
+	currentSortType: SORT_TYPES.DEFAULT,
+	searchTerm: '',
+	filters: {
+		size: '',
+		color: '',
+		category: '',
+		salesStatus: null,
+	},
+	isManuallyHidden: false,
 };
 
 // ============================================================================
@@ -43,7 +88,7 @@ let filters = {
 
 const fetchProducts = async () => {
 	try {
-		const response = await fetch(DATA_URL);
+		const response = await fetch(CONFIG.DATA_URL);
 		if (!response.ok) throw new Error('Failed to fetch products');
 		const json = await response.json();
 		return json.data;
@@ -64,35 +109,26 @@ const filterProductsBySearch = (products, searchTerm) => {
 	});
 };
 
+const isCatalogPage = () => window.location.pathname.includes('catalog.html');
+
 // ============================================================================
 // SORTING FUNCTIONALITY
 // ============================================================================
 
+const sortStrategies = {
+	[SORT_TYPES.PRICE_ASC]: (a, b) => a.price - b.price,
+	[SORT_TYPES.PRICE_DESC]: (a, b) => b.price - a.price,
+	[SORT_TYPES.NEWEST]: (a, b) => b.id.localeCompare(a.id),
+	[SORT_TYPES.SALE]: (a, b) => b.salesStatus - a.salesStatus,
+	[SORT_TYPES.POPULARITY]: (a, b) => b.popularity - a.popularity,
+	[SORT_TYPES.RATING]: (a, b) => b.rating - a.rating,
+	[SORT_TYPES.DEFAULT]: () => 0,
+};
+
 const sortProducts = (products, sortType) => {
-	const sorted = [...products];
-
-	switch (sortType) {
-		case 'price-asc':
-			return sorted.sort((a, b) => a.price - b.price);
-
-		case 'price-desc':
-			return sorted.sort((a, b) => b.price - a.price);
-
-		case 'newest':
-			return sorted.sort((a, b) => b.id.localeCompare(a.id));
-
-		case 'sale':
-			return sorted.sort((a, b) => b.salesStatus - a.salesStatus);
-
-		case 'popularity':
-			return sorted.sort((a, b) => b.popularity - a.popularity);
-
-		case 'rating':
-			return sorted.sort((a, b) => b.rating - a.rating);
-
-		default:
-			return sorted;
-	}
+	const strategy =
+		sortStrategies[sortType] || sortStrategies[SORT_TYPES.DEFAULT];
+	return [...products].sort(strategy);
 };
 
 // ============================================================================
@@ -100,15 +136,25 @@ const sortProducts = (products, sortType) => {
 // ============================================================================
 const applyFiltersChain = (products) => {
 	return products.filter((item) => {
-		const matchesSize = !filters.size || item.size === filters.size;
-		const matchesColor = !filters.color || item.color === filters.color;
-		const matchesCategory =
-			!filters.category || item.category === filters.category;
+		const { size, color, category, salesStatus } = catalogState.filters;
+
+		const matchesSize = !size || item.size === size;
+		const matchesColor = !color || item.color === color;
+		const matchesCategory = !category || item.category === category;
 		const matchesSales =
-			filters.salesStatus === null || item.salesStatus === filters.salesStatus;
+			salesStatus === null || item.salesStatus === salesStatus;
 
 		return matchesSize && matchesColor && matchesCategory && matchesSales;
 	});
+};
+
+const resetFilters = () => {
+	catalogState.filters = {
+		size: '',
+		color: '',
+		category: '',
+		salesStatus: null,
+	};
 };
 
 // ============================================================================
@@ -121,19 +167,21 @@ const createProductCard = (product) => {
 		: '';
 
 	return `
-    <a href="/html/product-card.html?id=${product.id}" class="product-card" data-id="${product.id}">
-      <div class="product-card__image">
-        <img src="${ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
-        ${saleBadge}
-      </div>
+    <div class="product-card" data-id="${product.id}">
+			<a href="/html/product-card.html?id=${product.id}" class="product-card__link">
+      	<div class="product-card__image">
+      	  <img src="${CONFIG.ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
+      	  ${saleBadge}
+      	</div>
+				<h3 class="product-card__title">${product.name}</h3>
+			</a>
       <div class="product-card__details">
-        <h3 class="product-card__title">${product.name}</h3>
         <div class="product-card__price">$${product.price}</div>
         <button class="product-card__button btn btn--medium" data-id="${product.id}">
           Add To Cart
         </button>
       </div>
-    </a>
+    </div>
   `;
 };
 
@@ -147,7 +195,6 @@ const renderProducts = (products) => {
 	}
 
 	productGrid.innerHTML = products.map(createProductCard).join('');
-	initAddToCartButtons();
 };
 
 const renderBestSets = (bestSets) => {
@@ -159,7 +206,7 @@ const renderBestSets = (bestSets) => {
 			return `
       <li class="widget-best__item">
         <a href="#" class="widget-best__link">
-          <img class="widget-best__thumb" src="${ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
+          <img class="widget-best__thumb" src="${CONFIG.ASSETS_PATH}${product.imageUrl}" alt="${product.name}">
           <div class="widget-best__meta">
             <div class="widget-best__name">${product.name}</div>
             <div class="widget-best__rating" aria-label="4 out of 5">
@@ -174,19 +221,87 @@ const renderBestSets = (bestSets) => {
 		.join('');
 };
 
-const paginateProducts = (products, page = 1, pageSize = 12) => {
-	const start = (page - 1) * pageSize;
-	const end = start + pageSize;
+const paginateProducts = (products, page = 1) => {
+	const start = (page - 1) * CONFIG.ITEMS_PER_PAGE;
+	const end = start + CONFIG.ITEMS_PER_PAGE;
 	return products.slice(start, end);
 };
 
-const updateResultsText = (totalProducts, currentPage, pageSize) => {
+const updateResultsText = (totalProducts, currentPage) => {
 	const resultsTextElement = document.querySelector(SELECTORS.resultsText);
 	if (!resultsTextElement) return;
 
-	const start = (currentPage - 1) * pageSize + 1;
-	const end = Math.min(currentPage * pageSize, totalProducts);
+	const start = (currentPage - 1) * CONFIG.ITEMS_PER_PAGE + 1;
+	const end = Math.min(currentPage * CONFIG.ITEMS_PER_PAGE, totalProducts);
 	resultsTextElement.textContent = `Showing ${start}–${end} of ${totalProducts} Results`;
+};
+
+// const renderPagination = (totalPages, currentPage) => {
+// 	const paginationContainer = document.querySelector(SELECTORS.pagination);
+// 	if (!paginationContainer) return;
+
+// 	paginationContainer.innerHTML = '';
+
+// 	const prevButton = document.createElement('a');
+// 	prevButton.classList.add('catalog__page', 'prev-btn');
+// 	prevButton.href = '#';
+// 	prevButton.textContent = 'Prev';
+// 	prevButton.addEventListener('click', (e) => {
+// 		e.preventDefault();
+// 		handlePageChange(currentPage - 1);
+// 	});
+// 	if (currentPage === 1) prevButton.classList.add('is-disabled');
+// 	paginationContainer.appendChild(prevButton);
+
+// 	const pageNumbersContainer = document.createElement('div');
+// 	for (let i = 1; i <= totalPages; i++) {
+// 		const pageButton = document.createElement('a');
+// 		pageButton.classList.add('catalog__page');
+// 		if (i === currentPage) pageButton.classList.add('is-active');
+// 		pageButton.href = '#';
+// 		pageButton.textContent = i;
+// 		pageButton.addEventListener('click', (e) => {
+// 			e.preventDefault();
+// 			handlePageChange(i);
+// 		});
+// 		pageNumbersContainer.appendChild(pageButton);
+// 	}
+// 	paginationContainer.appendChild(pageNumbersContainer);
+
+// 	const nextButton = document.createElement('a');
+// 	nextButton.classList.add('catalog__page', 'next-btn');
+// 	nextButton.href = '#';
+// 	nextButton.textContent = 'Next';
+// 	nextButton.addEventListener('click', (e) => {
+// 		e.preventDefault();
+// 		handlePageChange(currentPage + 1);
+// 	});
+// 	if (currentPage === totalPages) nextButton.classList.add('is-disabled');
+// 	paginationContainer.appendChild(nextButton);
+// };
+
+const createPaginationButton = (
+	text,
+	page,
+	isActive = false,
+	isDisabled = false
+) => {
+	const button = document.createElement('a');
+	button.classList.add(SELECTORS.catalogPage.substring(1));
+	button.href = '#';
+	button.textContent = text;
+
+	if (isActive) button.classList.add(CSS_CLASSES.paginationActive);
+	if (isDisabled) button.classList.add(CSS_CLASSES.paginationDisabled);
+
+	button.addEventListener('click', (e) => {
+		e.preventDefault();
+		if (!isDisabled) {
+			handlePageChange(page);
+		}
+	});
+
+	return button;
 };
 
 const renderPagination = (totalPages, currentPage) => {
@@ -195,71 +310,81 @@ const renderPagination = (totalPages, currentPage) => {
 
 	paginationContainer.innerHTML = '';
 
-	const prevButton = document.createElement('a');
-	prevButton.classList.add('catalog__page', 'prev-btn');
-	prevButton.href = '#';
-	prevButton.textContent = 'Prev';
-	prevButton.addEventListener('click', (e) => {
-		e.preventDefault();
-		handlePageChange(currentPage - 1);
-	});
-	if (currentPage === 1) prevButton.classList.add('is-disabled');
+	// Prev button
+	const prevButton = createPaginationButton(
+		'Prev',
+		currentPage - 1,
+		false,
+		currentPage === 1
+	);
+	prevButton.classList.add('prev-btn');
 	paginationContainer.appendChild(prevButton);
 
+	// Page numbers
 	const pageNumbersContainer = document.createElement('div');
 	for (let i = 1; i <= totalPages; i++) {
-		const pageButton = document.createElement('a');
-		pageButton.classList.add('catalog__page');
-		if (i === currentPage) pageButton.classList.add('is-active');
-		pageButton.href = '#';
-		pageButton.textContent = i;
-		pageButton.addEventListener('click', (e) => {
-			e.preventDefault();
-			handlePageChange(i);
-		});
+		const pageButton = createPaginationButton(
+			i.toString(),
+			i,
+			i === currentPage
+		);
 		pageNumbersContainer.appendChild(pageButton);
 	}
 	paginationContainer.appendChild(pageNumbersContainer);
 
-	const nextButton = document.createElement('a');
-	nextButton.classList.add('catalog__page', 'next-btn');
-	nextButton.href = '#';
-	nextButton.textContent = 'Next';
-	nextButton.addEventListener('click', (e) => {
-		e.preventDefault();
-		handlePageChange(currentPage + 1);
-	});
-	if (currentPage === totalPages) nextButton.classList.add('is-disabled');
+	// Next button
+	const nextButton = createPaginationButton(
+		'Next',
+		currentPage + 1,
+		false,
+		currentPage === totalPages
+	);
+	nextButton.classList.add('next-btn');
 	paginationContainer.appendChild(nextButton);
 };
 
-const handlePageChange = async (page) => {
-	const bestSets = filterProductsByCategory(allProducts, 'Top Best Sets');
-	const remainingProducts = allProducts.filter(
-		(product) => !product.blocks.includes('Top Best Sets')
+const getProcessedProducts = () => {
+	const bestSets = filterProductsByCategory(
+		catalogState.allProducts,
+		BLOCK_NAMES.BEST_SETS
+	);
+	const remainingProducts = catalogState.allProducts.filter(
+		(product) => !product.blocks.includes(BLOCK_NAMES.BEST_SETS)
 	);
 
-	// Застосовуємо сортування
-	// const sortedProducts = sortProducts(remainingProducts, currentSortType);
-	let processed = filterProductsBySearch(remainingProducts, searchTerm);
+	let processed = filterProductsBySearch(
+		remainingProducts,
+		catalogState.searchTerm
+	);
 	processed = applyFiltersChain(processed);
-	processed = sortProducts(processed, currentSortType);
+	processed = sortProducts(processed, catalogState.currentSortType);
 
-	const totalPages = Math.ceil(processed.length / 12);
+	return { bestSets, processed };
+};
+
+const handlePageChange = (page) => {
+	const { bestSets, processed } = getProcessedProducts();
+	const totalPages = Math.ceil(processed.length / CONFIG.ITEMS_PER_PAGE);
 
 	if (processed.length === 0) {
-		showNotFoundPopup();
+		showNotification('Product not found', NotificationType.ERROR);
 	}
 
 	if (page < 1 || page > totalPages) return;
 
-	currentPage = page;
-	const paginatedProducts = paginateProducts(processed, currentPage);
+	catalogState.currentPage = page;
+	const paginatedProducts = paginateProducts(
+		processed,
+		catalogState.currentPage
+	);
 
-	updateResultsText(processed.length, currentPage, 12);
+	updateResultsText(processed.length, catalogState.currentPage);
 	renderBestSets(bestSets);
 	renderProducts(paginatedProducts);
-	renderPagination(totalPages, currentPage);
+	renderPagination(totalPages, catalogState.currentPage);
+
+	const cartHandler = createCartHandler(catalogState.allProducts);
+	cartHandler.initButtons();
 };
 
 // ============================================================================
@@ -267,95 +392,16 @@ const handlePageChange = async (page) => {
 // ============================================================================
 
 const initSearch = () => {
-	const searchForm = document.querySelector('[data-js="search-form"]');
+	const searchForm = document.querySelector(SELECTORS.searchForm);
 	if (!searchForm) return;
 
 	const input = document.querySelector(SELECTORS.searchInput);
 
 	searchForm.addEventListener('submit', (event) => {
 		event.preventDefault();
-		searchTerm = input.value.trim();
+		catalogState.searchTerm = input?.value.trim() || '';
 		handlePageChange(1);
 	});
-};
-
-const showNotFoundPopup = () => {
-	const popup = document.createElement('div');
-	popup.className = 'cart-notification';
-	popup.textContent = 'Product not found';
-	popup.style.cssText = `
-		position: fixed;
-		top: 120px;
-		right: 20px;
-		background: #dc3545;
-		color: white;
-		padding: 15px 25px;
-		border-radius: 5px;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-		z-index: 9999;
-		animation: slideIn 0.3s ease;
-	`;
-
-	document.body.appendChild(popup);
-
-	setTimeout(() => {
-		popup.style.animation = 'slideOut 0.3s ease';
-		setTimeout(() => popup.remove(), 100);
-	}, 2000);
-};
-
-// ============================================================================
-// CART FUNCTIONALITY
-// ============================================================================
-
-const initAddToCartButtons = () => {
-	const buttons = document.querySelectorAll('.product-card__button');
-
-	buttons.forEach((button) => {
-		button.addEventListener('click', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			const productId = e.target.getAttribute('data-id');
-			addToCart(productId);
-		});
-	});
-};
-
-const addToCart = (productId) => {
-	const product = allProducts.find((p) => p.id === productId);
-
-	if (!product) {
-		console.error('Product not found');
-		return;
-	}
-
-	CartManager.addToCart(product);
-	showNotification(`${product.name} added to cart!`);
-};
-
-const showNotification = (message) => {
-	const notification = document.createElement('div');
-	notification.className = 'cart-notification';
-	notification.textContent = message;
-	notification.style.cssText = `
-		position: fixed;
-		top: 120px;
-		right: 20px;
-		background: #28a745;
-		color: white;
-		padding: 15px 25px;
-		border-radius: 5px;
-		box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-		z-index: 9999;
-		animation: slideIn 0.3s ease;
-	`;
-
-	document.body.appendChild(notification);
-
-	setTimeout(() => {
-		notification.style.animation = 'slideOut 0.3s ease';
-		setTimeout(() => notification.remove(), 100);
-	}, 2000);
 };
 
 // ============================================================================
@@ -369,30 +415,34 @@ const initDropdown = () => {
 	const dropdownBtn = dropdown.querySelector(SELECTORS.dropdownBtn);
 	const dropdownItems = dropdown.querySelectorAll(SELECTORS.dropdownItems);
 
-	// Відкриваємо/закриваємо список при натисканні на кнопку
-	dropdownBtn.addEventListener('click', (event) => {
+	const toggleDropdown = (event) => {
 		event.stopPropagation();
-		dropdown.classList.toggle('open');
-	});
+		dropdown.classList.toggle(CSS_CLASSES.dropdownOpen);
+	};
 
-	// Закриваємо список при виборі елемента
+	const closeDropdown = () => {
+		dropdown.classList.remove(CSS_CLASSES.dropdownOpen);
+	};
+
+	const handleItemClick = (event, item) => {
+		event.preventDefault();
+		event.stopPropagation();
+
+		closeDropdown();
+		dropdownBtn.textContent = item.textContent;
+
+		catalogState.currentSortType = item.dataset.value;
+		handlePageChange(1);
+	};
+	dropdownBtn.addEventListener('click', toggleDropdown);
+
 	dropdownItems.forEach((item) => {
-		item.addEventListener('click', (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-			dropdown.classList.remove('open');
-			dropdownBtn.textContent = item.textContent;
-
-			// Отримуємо тип сортування і застосовуємо його
-			currentSortType = item.dataset.value;
-			currentPage = 1; // Скидаємо на першу сторінку
-			handlePageChange(1);
-		});
+		item.addEventListener('click', (event) => handleItemClick(event, item));
 	});
 
 	document.addEventListener('click', (event) => {
 		if (!dropdown.contains(event.target)) {
-			dropdown.classList.remove('open');
+			closeDropdown();
 		}
 	});
 };
@@ -409,13 +459,13 @@ const initCatalogFilters = () => {
 
 	selects.forEach((select) => {
 		select.addEventListener('change', () => {
-			const type = select.previousElementSibling.textContent
+			const type = select.previousElementSibling?.textContent
 				.trim()
 				.toLowerCase();
 
-			if (type === 'size') filters.size = select.value;
-			if (type === 'color') filters.color = select.value;
-			if (type === 'category') filters.category = select.value;
+			if (type === 'size') catalogState.filters.size = select.value;
+			if (type === 'color') catalogState.filters.color = select.value;
+			if (type === 'category') catalogState.filters.category = select.value;
 
 			handlePageChange(1);
 		});
@@ -423,7 +473,7 @@ const initCatalogFilters = () => {
 
 	if (salesCheckbox) {
 		salesCheckbox.addEventListener('change', () => {
-			filters.salesStatus = salesCheckbox.checked ? true : null;
+			catalogState.filters.salesStatus = salesCheckbox.checked ? true : null;
 			handlePageChange(1);
 		});
 	}
@@ -433,13 +483,7 @@ const initCatalogFilters = () => {
 			selects.forEach((select) => (select.value = ''));
 			if (salesCheckbox) salesCheckbox.checked = false;
 
-			filters = {
-				size: '',
-				color: '',
-				category: '',
-				salesStatus: null,
-			};
-
+			resetFilters();
 			handlePageChange(1);
 		});
 	}
@@ -450,44 +494,34 @@ const initCatalogFilters = () => {
 // ============================================================================
 
 const initCatalogFiltersShowHide = () => {
-	// Працюємо тільки на сторінці catalog.html
-	if (!window.location.pathname.includes('catalog.html')) return;
+	if (!isCatalogPage()) return;
 
-	const navCatalog = document.querySelector(SELECTORS.navCatalog);
+	const navFilter = document.querySelector(SELECTORS.navFilter);
 	const filtersBlock = document.querySelector(SELECTORS.filtersBlock);
 	const hideBtn = document.querySelector(SELECTORS.hideBtn);
 
-	if (!navCatalog || !filtersBlock || !hideBtn) return;
+	if (!navFilter || !filtersBlock || !hideBtn) return;
 
-	let isManuallyHidden = false;
+	filtersBlock.classList.add(CSS_CLASSES.filtersHidden);
 
-	// Старт: приховано
-	filtersBlock.classList.add('is-hidden');
-
-	// Показуємо по hover на Catalog
-	navCatalog.addEventListener('mouseenter', () => {
-		if (!isManuallyHidden) {
-			filtersBlock.classList.remove('is-hidden');
+	const showFilters = () => {
+		if (!catalogState.isManuallyHidden) {
+			filtersBlock.classList.remove(CSS_CLASSES.filtersHidden);
 		}
-	});
+	};
 
-	// Якщо миша переходить на сам блок фільтрів — НЕ ховаємо
-	filtersBlock.addEventListener('mouseenter', () => {
-		if (!isManuallyHidden) {
-			filtersBlock.classList.remove('is-hidden');
-		}
-	});
+	const hideFilters = () => {
+		catalogState.isManuallyHidden = true;
+		filtersBlock.classList.add(CSS_CLASSES.filtersHidden);
 
-	// Hide button — ховає фільтри повністю, поки користувач не наведе знову на Catalog
-	hideBtn.addEventListener('click', () => {
-		isManuallyHidden = true;
-		filtersBlock.classList.add('is-hidden');
-
-		// Повернути показ при наступному hover
 		setTimeout(() => {
-			isManuallyHidden = false;
+			catalogState.isManuallyHidden = false;
 		}, 300);
-	});
+	};
+
+	navFilter.addEventListener('mouseenter', showFilters);
+	filtersBlock.addEventListener('mouseenter', showFilters);
+	hideBtn.addEventListener('click', hideFilters);
 };
 
 // ============================================================================
@@ -495,20 +529,32 @@ const initCatalogFiltersShowHide = () => {
 // ============================================================================
 
 export const initCatalog = async () => {
-	allProducts = await fetchProducts();
+	catalogState.allProducts = await fetchProducts();
 
-	const bestSets = filterProductsByCategory(allProducts, 'Top Best Sets');
-	const remainingProducts = allProducts.filter(
-		(product) => !product.blocks.includes('Top Best Sets')
+	const bestSets = filterProductsByCategory(
+		catalogState.allProducts,
+		BLOCK_NAMES.BEST_SETS
+	);
+	const remainingProducts = catalogState.allProducts.filter(
+		(product) => !product.blocks.includes(BLOCK_NAMES.BEST_SETS)
 	);
 
-	const totalPages = Math.ceil(remainingProducts.length / 12);
-	const paginatedProducts = paginateProducts(remainingProducts, currentPage);
+	const totalPages = Math.ceil(
+		remainingProducts.length / CONFIG.ITEMS_PER_PAGE
+	);
+	const paginatedProducts = paginateProducts(
+		remainingProducts,
+		catalogState.currentPage
+	);
 
 	renderBestSets(bestSets);
 	renderProducts(paginatedProducts);
-	renderPagination(totalPages, currentPage);
-	updateResultsText(remainingProducts.length, currentPage, 12);
+	renderPagination(totalPages, catalogState.currentPage);
+	updateResultsText(remainingProducts.length, catalogState.currentPage);
+
+	const cartHandler = createCartHandler(catalogState.allProducts);
+	cartHandler.initButtons();
+
 	initSearch();
 	initDropdown();
 	initCatalogFilters();

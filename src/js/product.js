@@ -2,12 +2,48 @@ import {
 	renderProducts,
 	filterProductsByBlock,
 	fetchProducts,
-	initAddToCartButtons,
+	createCartHandler,
+	showNotification,
+	NotificationType,
+	CONFIG as HOME_CONFIG,
 } from './home.js';
 import { CartManager } from './cart.js';
 
-const YOU_MAY_SELECTOR = '.like-products .selected-products__grid';
-const ASSETS_PATH = '/assets/';
+const SELECTORS = {
+	youMayLike: '.like-products .selected-products__grid',
+	productDetails: '.product-details__container',
+	mainImage: '.product-gallery__main-image',
+	productTitle: '.product-details__title',
+	productPrice: '.product-details__price',
+	ratingStars: '.product-rating__stars',
+	gallery: '.product-gallery__main',
+	saleBadge: '.product-card__status',
+	addToCartBtn: '.product-details__add-to-cart',
+	quantityInput: '.product-quantity__input',
+	quantityMinus: '.product-quantity__btn--minus',
+	quantityPlus: '.product-quantity__btn--plus',
+	tabs: '.product-tabs__tab',
+	tabPanels: '.product-tabs__panel',
+	reviewForm: '.review-form',
+	starInputs: '.review-form__star-input',
+	starLabels: '.review-form__star',
+};
+
+const CONFIG = {
+	...HOME_CONFIG,
+	MIN_QUANTITY: 1,
+	MAX_QUANTITY: 99,
+	MAX_RATING_STARS: 5,
+};
+
+const BLOCK_NAMES = {
+	YOU_MAY_LIKE: 'You May Also Like',
+};
+
+const CSS_CLASSES = {
+	tabActive: 'product-tabs__tab--active',
+	panelActive: 'product-tabs__panel--active',
+};
 
 // ============================================================================
 // GET PRODUCT FROM URL
@@ -23,89 +59,87 @@ const getProductById = (products, productId) => {
 // ============================================================================
 // RENDER PRODUCT DETAILS
 // ============================================================================
-const renderProductDetails = (product) => {
-	if (!product) {
-		console.error('Product not found');
-		document.querySelector('.product-details__container').innerHTML =
-			'<p>Product not found. Please return to the catalog.</p>';
-		return;
-		return;
-	}
 
-	// Оновлюємо зображення
-	const mainImage = document.querySelector('.product-gallery__main-image');
+const updateProductImage = (product) => {
+	const mainImage = document.querySelector(SELECTORS.mainImage);
 	if (mainImage) {
-		mainImage.src = `${ASSETS_PATH}${product.imageUrl}`;
+		mainImage.src = `${CONFIG.ASSETS_PATH}${product.imageUrl}`;
 		mainImage.alt = product.name;
 	}
+};
 
-	// Оновлюємо назву
-	const productTitle = document.querySelector('.product-details__title');
+const updateProductInfo = (product) => {
+	const productTitle = document.querySelector(SELECTORS.productTitle);
 	if (productTitle) {
 		productTitle.textContent = product.name;
 	}
 
-	// Оновлюємо ціну
-	const productPrice = document.querySelector('.product-details__price');
+	const productPrice = document.querySelector(SELECTORS.productPrice);
 	if (productPrice) {
 		productPrice.textContent = `$${product.price}`;
 	}
-	// 4. Оновлюємо рейтинг (якщо є в даних)
-
-	const ratingStars = document.querySelector('.product-rating__stars');
-	if (ratingStars && product.rating) {
-		const fullStars = Math.floor(product.rating);
-		const emptyStars = 5 - fullStars;
-		ratingStars.textContent = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
-	}
 
 	document.title = `${product.name} - Product Card`;
-
-	if (product.salesStatus) {
-		const gallery = document.querySelector('.product-gallery__main');
-		if (gallery && !gallery.querySelector('.product-card__status')) {
-			const saleBadge = document.createElement('span');
-			saleBadge.className = 'product-card__status btn btn--small';
-			saleBadge.textContent = 'SALE';
-			saleBadge.style.cssText = 'position: absolute; top: 10px; left: 10px;';
-			gallery.style.position = 'relative';
-			gallery.appendChild(saleBadge);
-		}
-	}
-
-	initAddToCartButton(product);
-
-	// Додаємо функціонал кнопки "Add to Cart"
-	// const addToCartBtn = document.querySelector('.product-details__add-to-cart');
-	// if (addToCartBtn) {
-	// 	addToCartBtn.addEventListener('click', () => {
-	// 		CartManager.addToCart(product);
-	// 		showNotification(`${product.name} added to cart!`);
-	// 	});
-	// }
 };
 
+const updateProductRating = (product) => {
+	const ratingStars = document.querySelector(SELECTORS.ratingStars);
+	if (ratingStars && product.rating) {
+		const fullStars = Math.floor(product.rating);
+		const emptyStars = CONFIG.MAX_RATING_STARS - fullStars;
+		ratingStars.textContent = '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
+	}
+};
+
+const addSaleBadge = (product) => {
+	if (!product.salesStatus) return;
+
+	const gallery = document.querySelector(SELECTORS.gallery);
+	if (gallery && !gallery.querySelector(SELECTORS.saleBadge)) {
+		const saleBadge = document.createElement('span');
+		saleBadge.className = 'product-card__status btn btn--small';
+		saleBadge.textContent = 'SALE';
+		gallery.appendChild(saleBadge);
+	}
+};
+
+const renderProductDetails = (product, addToCartFn) => {
+	if (!product) {
+		console.error('Product not found');
+		const container = document.querySelector(SELECTORS.productDetails);
+		if (container) {
+			container.innerHTML =
+				'<p>Product not found. Please return to the catalog.</p>';
+		}
+		return;
+	}
+
+	updateProductImage(product);
+	updateProductInfo(product);
+	updateProductRating(product);
+	addSaleBadge(product);
+
+	initAddToCartButton(product, addToCartFn);
+};
 // ============================================================================
 // PRODUCT TABS
 // ============================================================================
 
 const initProductTabs = () => {
-	const tabs = document.querySelectorAll('.product-tabs__tab');
-	const panels = document.querySelectorAll('.product-tabs__panel');
+	const tabs = document.querySelectorAll(SELECTORS.tabs);
+	const panels = document.querySelectorAll(SELECTORS.tabPanels);
 
 	tabs.forEach((tab) => {
 		tab.addEventListener('click', () => {
 			const targetPanel = tab.dataset.tab;
 
-			// Remove active classes
-			tabs.forEach((t) => t.classList.remove('product-tabs__tab--active'));
-			panels.forEach((p) => p.classList.remove('product-tabs__panel--active'));
+			tabs.forEach((t) => t.classList.remove(CSS_CLASSES.tabActive));
+			panels.forEach((p) => p.classList.remove(CSS_CLASSES.panelActive));
 
-			// Add active classes
-			tab.classList.add('product-tabs__tab--active');
+			tab.classList.add(CSS_CLASSES.tabActive);
 			document
 				.querySelector(`[data-panel="${targetPanel}"]`)
-				.classList.add('product-tabs__panel--active');
+				.classList.add(CSS_CLASSES.panelActive);
 		});
 	});
 };
@@ -115,29 +149,44 @@ const initProductTabs = () => {
 // ============================================================================
 
 const initReviewForm = () => {
-	const form = document.querySelector('.review-form');
+	const form = document.querySelector(SELECTORS.reviewForm);
 	if (!form) return;
 
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
 
-		// Тут можна додати логіку відправки відгуку
-		alert('Review submitted! (This is a demo)');
+		showNotification(
+			'Review submitted! (This is a demo)',
+			NotificationType.INFO
+		);
+
 		form.reset();
+
+		const starLabels = form.querySelectorAll(SELECTORS.starLabels);
+		starLabels.forEach((label) => label.classList.remove('active'));
 	});
 
-	const starInputs = form.querySelectorAll('.review-form__star-input');
-	const starLabels = form.querySelectorAll('.review-form__star');
+	const starInputs = form.querySelectorAll(SELECTORS.starInputs);
+	const starLabels = form.querySelectorAll(SELECTORS.starLabels);
 
 	starInputs.forEach((input, index) => {
 		input.addEventListener('change', () => {
-			starLabels.forEach((label, i) => {
-				if (i <= index) {
-					label.textContent = '★';
+			// starLabels.forEach((label, i) => {
+			// 	if (i <= index) {
+			// 		label.textContent = '★';
+			// 	} else {
+			// 		label.textContent = '☆';
+			// 	}
+			// });
+			starLabels.forEach((label, labelIndex) => {
+				if (labelIndex <= index) {
+					label.classList.add('active');
 				} else {
-					label.textContent = '☆';
+					label.classList.remove('active');
 				}
 			});
+
+			starInputs[index].checked = true;
 		});
 	});
 };
@@ -145,46 +194,47 @@ const initReviewForm = () => {
 // ============================================================================
 // QUANTITY CONTROLS
 // ============================================================================
+
+const getQuantityValue = (input) =>
+	parseInt(input.value) || CONFIG.MIN_QUANTITY;
+
 const initQuantityControls = () => {
-	const quantityInput = document.querySelector('.product-quantity__input');
-	const minusBtn = document.querySelector('.product-quantity__btn--minus');
-	const plusBtn = document.querySelector('.product-quantity__btn--plus');
+	const quantityInput = document.querySelector(SELECTORS.quantityInput);
+	const minusBtn = document.querySelector(SELECTORS.quantityMinus);
+	const plusBtn = document.querySelector(SELECTORS.quantityPlus);
 
 	if (!quantityInput || !minusBtn || !plusBtn) return;
 
 	minusBtn.addEventListener('click', () => {
-		const currentValue = parseInt(quantityInput.value);
-		const minValue = 1; // Мінімальне значення 1
-		if (currentValue > minValue) {
+		const currentValue = getQuantityValue(quantityInput);
+		if (currentValue > CONFIG.MIN_QUANTITY) {
 			quantityInput.value = currentValue - 1;
 		}
 	});
 
 	plusBtn.addEventListener('click', () => {
-		const currentValue = parseInt(quantityInput.value);
-		const maxValue = parseInt(quantityInput.max) || 99;
-		if (currentValue < maxValue) {
+		const currentValue = getQuantityValue(quantityInput);
+		if (currentValue < CONFIG.MAX_QUANTITY) {
 			quantityInput.value = currentValue + 1;
 		}
 	});
 
-	// Валідація вводу - мінімум 1
 	quantityInput.addEventListener('input', () => {
 		let value = parseInt(quantityInput.value);
-		const minValue = 1;
-		const maxValue = parseInt(quantityInput.max) || 99;
 
-		if (isNaN(value) || value < minValue) {
-			quantityInput.value = minValue;
-		} else if (value > maxValue) {
-			quantityInput.value = maxValue;
+		if (isNaN(value) || value < CONFIG.MIN_QUANTITY) {
+			quantityInput.value = CONFIG.MIN_QUANTITY;
+		} else if (value > CONFIG.MAX_QUANTITY) {
+			quantityInput.value = CONFIG.MAX_QUANTITY;
 		}
 	});
 
-	// Якщо поле порожнє при втраті фокусу, встановлюємо 1
 	quantityInput.addEventListener('blur', () => {
-		if (!quantityInput.value || parseInt(quantityInput.value) < 1) {
-			quantityInput.value = 1;
+		if (
+			!quantityInput.value ||
+			getQuantityValue(quantityInput) < CONFIG.MIN_QUANTITY
+		) {
+			quantityInput.value = CONFIG.MIN_QUANTITY;
 		}
 	});
 };
@@ -192,49 +242,16 @@ const initQuantityControls = () => {
 // ============================================================================
 // CART FUNCTIONALITY
 // ============================================================================
-const initAddToCartButton = (product) => {
-	const addToCartBtn = document.querySelector('.product-details__add-to-cart');
+const initAddToCartButton = (product, addToCartFn) => {
+	const addToCartBtn = document.querySelector(SELECTORS.addToCartBtn);
 	if (!addToCartBtn) return;
 
 	addToCartBtn.addEventListener('click', () => {
-		const quantityInput = document.querySelector('.product-quantity__input');
-		const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+		const quantityInput = document.querySelector(SELECTORS.quantityInput);
+		const quantity = quantityInput ? getQuantityValue(quantityInput) : 1;
 
-		// Додаємо товар до кошика вказану кількість разів
-		for (let i = 0; i < quantity; i++) {
-			CartManager.addToCart(product);
-		}
-
-		showNotification(`${product.name} (x${quantity}) added to cart!`);
-
-		// Оновлюємо лічильник в header
-		CartManager.updateCartCount();
+		addToCartFn(product.id, quantity);
 	});
-};
-
-const showNotification = (message) => {
-	const notification = document.createElement('div');
-	notification.className = 'cart-notification';
-	notification.textContent = message;
-	notification.style.cssText = `
-    position: fixed;
-    top: 120px;
-    right: 20px;
-    background: #28a745;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 9999;
-    animation: slideIn 0.3s ease;
-  `;
-
-	document.body.appendChild(notification);
-
-	setTimeout(() => {
-		notification.style.animation = 'slideOut 0.3s ease';
-		setTimeout(() => notification.remove(), 300);
-	}, 3000);
 };
 
 // ============================================================================
@@ -247,14 +264,21 @@ export const initProduct = async () => {
 	const productId = getProductIdFromURL();
 	const currentProduct = getProductById(products, productId);
 
-	renderProductDetails(currentProduct);
+	const cartHandler = createCartHandler(products);
 
-	const youMayProducts = filterProductsByBlock(products, 'You May Also Like');
+	renderProductDetails(currentProduct, cartHandler.addToCart);
 
-	renderProducts(youMayProducts, YOU_MAY_SELECTOR);
+	const youMayProducts = filterProductsByBlock(
+		products,
+		BLOCK_NAMES.YOU_MAY_LIKE
+	);
+	renderProducts(youMayProducts, SELECTORS.youMayLike);
+
+	cartHandler.initButtons();
+
 	initProductTabs();
 	initReviewForm();
-	initAddToCartButtons();
 	initQuantityControls();
+
 	CartManager.updateCartCount();
 };

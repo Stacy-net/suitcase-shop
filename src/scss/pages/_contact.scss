@@ -3,8 +3,8 @@
 @use '../components/forms' as *;
 
 .hero-contact {
-	background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-		url(../assets/images/banner-contact.jpg) no-repeat center / cover;
+	background: linear-gradient(rgb(0 0 0 / 40%), rgb(0 0 0 / 40%)),
+		url("../assets/images/banner-contact.jpg") no-repeat center / cover;
 	height: 554px;
 	margin-bottom: 130px;
 	padding-bottom: 0;
@@ -20,7 +20,7 @@
 
 .feedback__image {
 	position: relative;
-	background: url(../../assets/images/feedback-image.jpg) no-repeat center /
+	background: url("../../assets/images/feedback-image.jpg") no-repeat center /
 		cover;
 	width: 100%;
 	height: 700px;
@@ -38,12 +38,12 @@
 .form-error {
 	margin-top: 6px;
 	font-size: 13px;
-	color: #d0392b; // error color
+	color: $color-error;
 }
 
 .input-error {
-	border-color: #d0392b !important;
-	box-shadow: 0 0 0 3px rgba(208, 57, 43, 0.08);
+	border-color: $color-error !important;
+	box-shadow: 0 0 0 3px rgb(208 57 43 / 8%);
 }
 
 /* notifications */
@@ -51,14 +51,29 @@
 	position: fixed;
 	top: 120px;
 	right: 20px;
-	background: #28a745;
+	background: $color-success;
 	color: #fff;
 	padding: 12px 18px;
 	border-radius: 6px;
-	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 6px 18px rgb(0 0 0 / 12%);
 	transition: opacity 0.3s ease;
 	opacity: 1;
 }
+
 .contact-notification--error {
-	background: #dc3545;
+	background: $color-error;
+}
+
+@include tablet {
+	.hero-contact {
+		margin-bottom: 50px;
+	}
+
+	.feedback__container {
+		grid-template-columns: 1fr;
+	}
+
+	.feedback__image {
+		height: 400px;
+	}
 }
