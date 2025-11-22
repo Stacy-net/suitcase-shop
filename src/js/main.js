@@ -3,7 +3,12 @@ import { initCart } from './cart.js';
 import { initAbout } from './about.js';
 import { initCatalog } from './catalog.js';
 import { initProduct } from './product.js';
-import { initContactForm } from './contact.js';
+import {
+	initContactForm,
+	isValidEmail,
+	showFieldError,
+	clearFieldError,
+} from './contact.js';
 
 // ============================================================================
 // CONSTANTS
@@ -12,6 +17,7 @@ import { initContactForm } from './contact.js';
 const SELECTORS = {
 	rootHeader: '#header',
 	rootFooter: '#footer',
+	rootBody: 'body',
 	navLink: '.nav__link',
 	dropdownItem: '.nav__item--dropdown',
 	userIcon: '#user-icon',
@@ -37,10 +43,6 @@ const ATTR = {
 	ariaExpanded: 'aria-expanded',
 };
 
-const VALIDATION = {
-	emailRegex: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
-};
-
 const PAGE_PATHS = {
 	home: ['/', 'index.html'],
 	about: 'about.html',
@@ -51,6 +53,12 @@ const PAGE_PATHS = {
 
 const BURGER_CONFIG = {
 	MOBILE_BREAKPOINT: 480,
+};
+
+const LOGIN_MESSAGES = {
+	invalidEmail: 'Please enter a valid email address',
+	invalidPassword: 'Password is required',
+	success: 'Logged in successfully!',
 };
 
 // ============================================================================
@@ -558,12 +566,8 @@ const renderLoginModal = () => {
 // MODAL LOG IN
 // ============================================================================
 
-const validateEmail = (email) => {
-	return VALIDATION.emailRegex.test(email);
-};
-
-const validatePassword = (password) => {
-	return password && password.trim().length > 0;
+const isValidPassword = (value) => {
+	return value && value.trim().length > 0;
 };
 
 const initPasswordToggle = () => {
@@ -596,7 +600,64 @@ const openLoginModal = () => {
 	modal.style.display = 'block';
 	modal.classList.add(CLASSES.modalOpen);
 
+	loginForm.setAttribute('novalidate', '');
+
+	const emailInput = document.querySelector(SELECTORS.emailInput);
+	const passwordInput = document.querySelector(SELECTORS.passwordInput);
+
 	initPasswordToggle();
+
+	if (emailInput) {
+		emailInput.addEventListener('input', () => {
+			const value = emailInput.value.trim();
+
+			if (value === '') {
+				showFieldError(emailInput, 'Email is required', loginForm);
+			} else if (!isValidEmail(value)) {
+				showFieldError(emailInput, LOGIN_MESSAGES.invalidEmail, loginForm);
+			} else {
+				clearFieldError(emailInput);
+			}
+		});
+
+		emailInput.addEventListener('blur', () => {
+			const value = emailInput.value.trim();
+
+			if (value === '') {
+				showFieldError(emailInput, 'Email is required', loginForm);
+			} else if (!isValidEmail(value)) {
+				showFieldError(emailInput, LOGIN_MESSAGES.invalidEmail, loginForm);
+			}
+		});
+	}
+
+	if (passwordInput) {
+		passwordInput.addEventListener('input', () => {
+			const value = passwordInput.value;
+
+			if (value === '') {
+				showFieldError(
+					passwordInput,
+					LOGIN_MESSAGES.invalidPassword,
+					loginForm
+				);
+			} else {
+				clearFieldError(passwordInput);
+			}
+		});
+
+		passwordInput.addEventListener('blur', () => {
+			const value = passwordInput.value;
+
+			if (value === '') {
+				showFieldError(
+					passwordInput,
+					LOGIN_MESSAGES.invalidPassword,
+					loginForm
+				);
+			}
+		});
+	}
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -607,21 +668,39 @@ const openLoginModal = () => {
 		const email = emailInput?.value || '';
 		const password = passwordInput?.value || '';
 
-		if (!validateEmail(email)) {
-			alert('Please enter a valid email');
-			emailInput?.focus();
-			return;
+		if (emailInput) clearFieldError(emailInput);
+		if (passwordInput) clearFieldError(passwordInput);
+
+		let hasErrors = false;
+
+		if (!isValidEmail(email)) {
+			if (emailInput) {
+				showFieldError(emailInput, LOGIN_MESSAGES.invalidEmail, loginForm);
+				if (!hasErrors) emailInput.focus();
+			}
+			hasErrors = true;
 		}
 
-		if (!validatePassword(password)) {
-			alert('Password is required');
-			passwordInput?.focus();
-			return;
+		if (!isValidPassword(password)) {
+			if (passwordInput) {
+				showFieldError(
+					passwordInput,
+					LOGIN_MESSAGES.invalidPassword,
+					loginForm
+				);
+				if (!hasErrors) passwordInput.focus();
+			}
+			hasErrors = true;
 		}
 
-		alert('Logged in successfully!');
+		if (hasErrors) return;
+
+		alert(LOGIN_MESSAGES.success);
 		closeLoginModal();
 		loginForm.reset();
+
+		if (emailInput) clearFieldError(emailInput);
+		if (passwordInput) clearFieldError(passwordInput);
 	};
 
 	loginForm.removeEventListener('submit', handleSubmit);

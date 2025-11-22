@@ -48,7 +48,7 @@ const CSS_CLASSES = {
 
 const MESSAGES = {
 	productNotFound: 'Product not found. Please return to the catalog.',
-	reviewSubmitted: 'Review submitted! (This is a demo)',
+	reviewSubmitted: 'Review submitted!',
 };
 
 // ============================================================================

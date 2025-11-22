@@ -172,6 +172,7 @@ section {
 .suitcase-card {
 	position: relative;
 	min-width: 280px;
+	max-width: 300px;
 	cursor: pointer;
 	transition: all 0.5s ease, box-shadow 0.3s ease;
 	transform-origin: center center;
@@ -605,6 +606,11 @@ section {
 	.banner__container {
 		padding: 30px;
 	}
+
+	.suitcase-card {
+		min-width: 240px;
+		max-width: 280px;
+	}
 }
 
 @include desktop {
@@ -645,6 +651,11 @@ section {
 
 	.new-products {
 		padding-bottom: 40px;
+	}
+
+	.suitcase-card {
+		min-width: 250px;
+		max-width: 280px;
 	}
 }
 
@@ -709,6 +720,7 @@ section {
 
 	.suitcase-card {
 		min-width: 200px;
+		max-width: 220px;
 	}
 
 	.banner__discount {
@@ -790,5 +802,10 @@ section {
 			right: 24px;
 			top: 35%;
 		}
+	}
+
+	.suitcase-card {
+		min-width: 180px;
+		max-width: 200px;
 	}
 }

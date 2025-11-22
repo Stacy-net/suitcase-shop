@@ -6,7 +6,7 @@ A multi-page responsive e-commerce website built using **HTML**, **SASS**, and *
 
 ## 🧰 Prerequisites
 
-- Node.js (v16+ recommended)
+- Node.js (v18+ recommended)
 - npm (comes with Node.js)
 
 ---

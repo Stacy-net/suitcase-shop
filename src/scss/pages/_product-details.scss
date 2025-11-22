@@ -413,28 +413,6 @@
 		}
 	}
 
-	// &__star {
-	// 	display: inline-block;
-	// 	width: 32px;
-	// 	height: 32px;
-	// 	text-align: center;
-	// 	line-height: 32px;
-	// 	cursor: pointer;
-	// 	position: relative;
-	// 	user-select: none;
-
-	// 	&::before {
-	// 		content: '★';
-	// 		font-size: 28px;
-	// 		color: #ddd;
-	// 		display: inline-block;
-	// 		transition: color 0.15s ease;
-	// 		-webkit-font-smoothing: antialiased;
-	// 		-moz-osx-font-smoothing: grayscale;
-	// 	}
-	// }
-
-	// /* Hover: підсвічує поточну та ВСІ попередні (вліво) */
 	&__star:hover::before,
 	&__star:hover ~ .review-form__star::before {
 		content: '★';

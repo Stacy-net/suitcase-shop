@@ -30,6 +30,7 @@ const SELECTORS = {
 	prevBtn: '.prev-btn',
 	nextBtn: '.next-btn',
 	catalogPage: '.catalog__page',
+	catalogSection: '.catalog',
 };
 
 const CONFIG = {
@@ -38,6 +39,7 @@ const CONFIG = {
 	ITEMS_PER_PAGE: 12,
 	NOTIFICATION_DURATION_MS: 2000,
 	ANIMATION_DURATION_MS: 100,
+	SCROLL_OFFSET: 100,
 };
 
 const CSS_CLASSES = {
@@ -236,50 +238,6 @@ const updateResultsText = (totalProducts, currentPage) => {
 	resultsTextElement.textContent = `Showing ${start}–${end} of ${totalProducts} Results`;
 };
 
-// const renderPagination = (totalPages, currentPage) => {
-// 	const paginationContainer = document.querySelector(SELECTORS.pagination);
-// 	if (!paginationContainer) return;
-
-// 	paginationContainer.innerHTML = '';
-
-// 	const prevButton = document.createElement('a');
-// 	prevButton.classList.add('catalog__page', 'prev-btn');
-// 	prevButton.href = '#';
-// 	prevButton.textContent = 'Prev';
-// 	prevButton.addEventListener('click', (e) => {
-// 		e.preventDefault();
-// 		handlePageChange(currentPage - 1);
-// 	});
-// 	if (currentPage === 1) prevButton.classList.add('is-disabled');
-// 	paginationContainer.appendChild(prevButton);
-
-// 	const pageNumbersContainer = document.createElement('div');
-// 	for (let i = 1; i <= totalPages; i++) {
-// 		const pageButton = document.createElement('a');
-// 		pageButton.classList.add('catalog__page');
-// 		if (i === currentPage) pageButton.classList.add('is-active');
-// 		pageButton.href = '#';
-// 		pageButton.textContent = i;
-// 		pageButton.addEventListener('click', (e) => {
-// 			e.preventDefault();
-// 			handlePageChange(i);
-// 		});
-// 		pageNumbersContainer.appendChild(pageButton);
-// 	}
-// 	paginationContainer.appendChild(pageNumbersContainer);
-
-// 	const nextButton = document.createElement('a');
-// 	nextButton.classList.add('catalog__page', 'next-btn');
-// 	nextButton.href = '#';
-// 	nextButton.textContent = 'Next';
-// 	nextButton.addEventListener('click', (e) => {
-// 		e.preventDefault();
-// 		handlePageChange(currentPage + 1);
-// 	});
-// 	if (currentPage === totalPages) nextButton.classList.add('is-disabled');
-// 	paginationContainer.appendChild(nextButton);
-// };
-
 const createPaginationButton = (
 	text,
 	page,
@@ -320,7 +278,6 @@ const renderPagination = (totalPages, currentPage) => {
 	prevButton.classList.add('prev-btn');
 	paginationContainer.appendChild(prevButton);
 
-	// Page numbers
 	const pageNumbersContainer = document.createElement('div');
 	for (let i = 1; i <= totalPages; i++) {
 		const pageButton = createPaginationButton(
@@ -332,7 +289,6 @@ const renderPagination = (totalPages, currentPage) => {
 	}
 	paginationContainer.appendChild(pageNumbersContainer);
 
-	// Next button
 	const nextButton = createPaginationButton(
 		'Next',
 		currentPage + 1,
@@ -385,6 +341,18 @@ const handlePageChange = (page) => {
 
 	const cartHandler = createCartHandler(catalogState.allProducts);
 	cartHandler.initButtons();
+
+	scrollToTop();
+};
+// ============================================================================
+// SCROLL UTILITIES
+// ============================================================================
+
+const scrollToTop = () => {
+	window.scrollTo({
+		top: 100,
+		behavior: 'smooth',
+	});
 };
 
 // ============================================================================
@@ -399,7 +367,37 @@ const initSearch = () => {
 
 	searchForm.addEventListener('submit', (event) => {
 		event.preventDefault();
-		catalogState.searchTerm = input?.value.trim() || '';
+		const searchTerm = input?.value.trim() || '';
+
+		if (!searchTerm) {
+			catalogState.searchTerm = '';
+			handlePageChange(1);
+			return;
+		}
+
+		const remainingProducts = catalogState.allProducts.filter(
+			(product) => !product.blocks.includes(BLOCK_NAMES.BEST_SETS)
+		);
+
+		const searchResults = filterProductsBySearch(remainingProducts, searchTerm);
+
+		if (searchResults.length === 0) {
+			showNotification(
+				`Product "${searchTerm}" not found`,
+				NotificationType.ERROR
+			);
+			catalogState.searchTerm = '';
+			input.value = '';
+			return;
+		}
+
+		if (searchResults.length === 1) {
+			const product = searchResults[0];
+			window.location.href = `/html/product-card.html?id=${product.id}`;
+			return;
+		}
+
+		catalogState.searchTerm = searchTerm;
 		handlePageChange(1);
 	});
 };

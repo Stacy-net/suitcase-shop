@@ -47,6 +47,8 @@ const createErrorNode = (input, form) => {
 		? `${input.id}-error`
 		: `error-${Math.random().toString(36).slice(2, 8)}`;
 
+	form.setAttribute('novalidate', '');
+
 	const existing = form.querySelector(`#${id}`);
 	if (existing) return existing;
 
@@ -201,3 +203,5 @@ export const initContactForm = () => {
 
 	CartManager.updateCartCount();
 };
+
+export { isValidEmail, showFieldError, clearFieldError };

@@ -30,7 +30,7 @@ const SELECTORS = {
 };
 
 const MESSAGES = {
-	emptyCart: 'Your cart is empty',
+	emptyCart: 'Your cart is empty. Use the catalog to add new items.',
 	removeItem: 'Are you sure you want to remove this item?',
 	clearCart: 'Are you sure you want to clear your cart?',
 	emptyCheckout: 'Your cart is empty!',
