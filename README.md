@@ -33,17 +33,4 @@ This command:
 
 ---
 
-## 📁 Project Structure
-
-```
-src/
- ├─ assets/
- ├─ js/
- ├─ scss/
- ├─ dist/
- └─ index.html
-```
-
----
-
 All development happens inside the **src/** folder.
