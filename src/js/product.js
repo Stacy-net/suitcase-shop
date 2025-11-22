@@ -5,6 +5,7 @@ import {
 	createCartHandler,
 	showNotification,
 	NotificationType,
+	initAllMobileSliders,
 	CONFIG as HOME_CONFIG,
 } from './home.js';
 import { CartManager } from './cart.js';
@@ -257,6 +258,27 @@ const initAddToCartButton = (product, addToCartFn) => {
 };
 
 // ============================================================================
+// INIT "YOU MAY ALSO LIKE" AS MOBILE SLIDER
+// ============================================================================
+
+const initYouMayAlsoLike = (products) => {
+	const youMayProducts = filterProductsByBlock(
+		products,
+		BLOCK_NAMES.YOU_MAY_LIKE
+	);
+
+	// Відрендерити продукти
+	renderProducts(youMayProducts, SELECTORS.youMayLike);
+
+	// Ініціалізувати mobile slider
+	initAllMobileSliders();
+
+	// Підключити addToCart кнопки
+	const cartHandler = createCartHandler(products);
+	cartHandler.initButtons();
+};
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
@@ -270,11 +292,12 @@ export const initProduct = async () => {
 
 	renderProductDetails(currentProduct, cartHandler.addToCart);
 
-	const youMayProducts = filterProductsByBlock(
-		products,
-		BLOCK_NAMES.YOU_MAY_LIKE
-	);
-	renderProducts(youMayProducts, SELECTORS.youMayLike);
+	// const youMayProducts = filterProductsByBlock(
+	// 	products,
+	// 	BLOCK_NAMES.YOU_MAY_LIKE
+	// );
+	// renderProducts(youMayProducts, SELECTORS.youMayLike);
+	initYouMayAlsoLike(products);
 
 	cartHandler.initButtons();
 

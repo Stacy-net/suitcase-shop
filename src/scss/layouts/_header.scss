@@ -54,6 +54,7 @@
 
 .header__logo-image {
 	@include flex-center;
+
 	background-color: $color-accent;
 	border-radius: 5px;
 	width: 35px;

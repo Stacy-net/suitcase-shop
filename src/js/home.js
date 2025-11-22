@@ -270,9 +270,12 @@ const initMobileSlider = (grid) => {
 
 	const updateActiveDot = () => {
 		const scrollLeft = grid.scrollLeft;
-		const cardWidth = cards[0]?.offsetWidth || 0;
-		const gap = 16;
-		const activeIndex = Math.round(scrollLeft / (cardWidth + gap));
+		const totalScrollWidth = grid.scrollWidth - grid.offsetWidth;
+		const cardsCount = cards.length;
+
+		const activeIndex = Math.round(
+			(scrollLeft / totalScrollWidth) * (cardsCount - 1)
+		);
 
 		dotsContainer
 			.querySelectorAll(`.${CSS_CLASSES.sliderDot}`)
@@ -410,5 +413,6 @@ export {
 	createCartHandler,
 	showNotification,
 	NotificationType,
+	initAllMobileSliders,
 	CONFIG,
 };
