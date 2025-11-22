@@ -487,7 +487,6 @@ const initBurgerMenu = () => {
 	const nav = document.querySelector(SELECTORS.nav);
 
 	if (!burger || !nav) {
-		console.warn('Burger menu elements not found');
 		return null;
 	}
 

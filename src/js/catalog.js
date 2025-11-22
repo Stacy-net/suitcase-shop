@@ -40,9 +40,6 @@ const CONFIG = {
 	ANIMATION_DURATION_MS: 100,
 };
 
-// const DATA_URL = '../assets/data.json';
-// const ASSETS_PATH = '../assets/';
-
 const CSS_CLASSES = {
 	dropdownOpen: 'open',
 	filtersHidden: 'is-hidden',
@@ -92,8 +89,11 @@ const fetchProducts = async () => {
 		if (!response.ok) throw new Error('Failed to fetch products');
 		const json = await response.json();
 		return json.data;
-	} catch (error) {
-		console.error('Error loading products:', error);
+	} catch {
+		showNotification(
+			'Failed to load products. Please refresh the page.',
+			NotificationType.ERROR
+		);
 		return [];
 	}
 };

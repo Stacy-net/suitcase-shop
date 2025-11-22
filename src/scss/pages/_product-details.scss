@@ -139,8 +139,6 @@
 	&__stars {
 		color: #ffc107;
 		font-size: 18px;
-		letter-spacing: 2px;
-		fill: #dcdcdc;
 
 		&.active {
 			fill: #ffc107;
@@ -396,8 +394,8 @@
 	&__stars {
 		display: flex;
 		gap: 5px;
-		// flex-direction: row-reverse;
-		// justify-content: flex-end;
+		flex-direction: row-reverse;
+		justify-content: flex-end;
 	}
 
 	&__star-input {
@@ -405,30 +403,47 @@
 	}
 
 	&__star {
-		font-size: 28px;
-		color: #ddd;
 		cursor: pointer;
+		font-size: 32px;
+		color: #ddd;
 		transition: color 0.2s ease;
+
+		&::before {
+			content: '☆';
+		}
 	}
 
-	&__star:hover {
+	// &__star {
+	// 	display: inline-block;
+	// 	width: 32px;
+	// 	height: 32px;
+	// 	text-align: center;
+	// 	line-height: 32px;
+	// 	cursor: pointer;
+	// 	position: relative;
+	// 	user-select: none;
+
+	// 	&::before {
+	// 		content: '★';
+	// 		font-size: 28px;
+	// 		color: #ddd;
+	// 		display: inline-block;
+	// 		transition: color 0.15s ease;
+	// 		-webkit-font-smoothing: antialiased;
+	// 		-moz-osx-font-smoothing: grayscale;
+	// 	}
+	// }
+
+	// /* Hover: підсвічує поточну та ВСІ попередні (вліво) */
+	&__star:hover::before,
+	&__star:hover ~ .review-form__star::before {
+		content: '★';
 		color: #ffc107;
 	}
 
-	&.active {
-		color: #ffc107;
-	}
-
-	&__star-input:checked + &__star {
-		color: #ffc107;
-	}
-
-	&__star-input:checked + &__star ~ &__star {
-		color: #ffc107;
-	}
-
-	&__star:hover,
-	&__star:has(~ &__star:hover) {
+	&__star-input:checked + .review-form__star::before,
+	&__star-input:checked + .review-form__star ~ .review-form__star::before {
+		content: '★';
 		color: #ffc107;
 	}
 
@@ -462,6 +477,15 @@
 
 	&__submit {
 		padding: 12px 40px;
+	}
+}
+
+@include desktop {
+	.product-reviews {
+		flex-direction: column;
+		align-items: center;
+		gap: 20px;
+		padding: 20px;
 	}
 }
 

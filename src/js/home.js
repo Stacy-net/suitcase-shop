@@ -7,8 +7,7 @@ import { CartManager } from './cart.js';
 const SELECTORS = {
 	slider: '[data-js="slider"]',
 	card: '[data-js="card"]',
-	selectedProducts: '.selected-products .selected-products__grid',
-	newProducts: '.new-products .selected-products__grid',
+	productGrids: '.selected-products__grid',
 	addToCartButton: '.product-card__button',
 };
 
@@ -16,8 +15,13 @@ const CONFIG = {
 	SLIDER_INTERVAL_MS: 4000,
 	NOTIFICATION_DURATION_MS: 3000,
 	ANIMATION_DURATION_MS: 300,
+	SLIDER_TRANSITION_MS: 500,
 	DATA_URL: '/assets/data.json',
 	ASSETS_PATH: '/assets/',
+	SLIDER_BREAKPOINT: 1400,
+	MIN_CARD_WIDTH: 280,
+	CARD_GAP: 20,
+	RESIZE_DEBOUNCE_MS: 250,
 };
 
 const NotificationType = {
@@ -31,6 +35,16 @@ const BLOCK_NAMES = {
 	NEW_ARRIVAL: 'New Products Arrival',
 };
 
+const CSS_CLASSES = {
+	wrapper: 'selected-products__wrapper',
+	sliderDots: 'slider-dots',
+	sliderDot: 'slider-dot',
+	sliderDotActive: 'slider-dot--active',
+	productCard: 'product-card',
+	notificationHiding: 'cart-notification--hiding',
+	sliderTransition: 'slider-transition',
+};
+
 // ============================================================================
 // UTILITIES
 // ============================================================================
@@ -41,8 +55,11 @@ const fetchProducts = async () => {
 		if (!response.ok) throw new Error('Failed to fetch products');
 		const json = await response.json();
 		return json.data;
-	} catch (error) {
-		console.error('Error loading products:', error);
+	} catch {
+		showNotification(
+			'Failed to load products. Please refresh the page.',
+			NotificationType.ERROR
+		);
 		return [];
 	}
 };
@@ -75,7 +92,9 @@ const initSuitcasesSlider = () => {
 	if (!cards.length) return null;
 
 	let isPaused = false;
-	let slidesToShow = getSlidesToShow();
+	let isTransitioning = false;
+
+	// let slidesToShow = getSlidesToShow();
 
 	const handleMouseEnter = () => {
 		isPaused = true;
@@ -91,17 +110,25 @@ const initSuitcasesSlider = () => {
 	});
 
 	const rotateCards = () => {
-		if (isPaused) return;
+		if (isPaused || isTransitioning) return;
 
 		const firstCard = slider.querySelector(SELECTORS.card);
-		if (firstCard) {
+		if (!firstCard) return;
+
+		isTransitioning = true;
+		slider.classList.add(CSS_CLASSES.sliderTransition);
+
+		setTimeout(() => {
 			slider.appendChild(firstCard);
-		}
+			slider.classList.remove(CSS_CLASSES.sliderTransition);
+			isTransitioning = false;
+		}, CONFIG.SLIDER_TRANSITION_MS);
 	};
 
 	const updateSliderLayout = () => {
-		slidesToShow = getSlidesToShow();
+		const slidesToShow = getSlidesToShow();
 		const cardWidth = 100 / slidesToShow;
+
 		slider.style.gridTemplateColumns = `repeat(${slidesToShow}, ${cardWidth}%)`;
 	};
 
@@ -161,17 +188,142 @@ const renderProducts = (products, selector) => {
 	grid.innerHTML = products.map(createProductCard).join('');
 };
 
-const renderSelectedProducts = (products) => {
-	const selectedProducts = filterProductsByBlock(
-		products,
-		BLOCK_NAMES.SELECTED
-	);
-	renderProducts(selectedProducts, SELECTORS.selectedProducts);
+const initAllProductGrids = (allProducts) => {
+	const gridsConfig = [
+		{
+			selector: '.selected-products .selected-products__grid',
+			blockName: BLOCK_NAMES.SELECTED,
+		},
+		{
+			selector: '.new-products .selected-products__grid',
+			blockName: BLOCK_NAMES.NEW_ARRIVAL,
+		},
+	];
+
+	gridsConfig.forEach(({ selector, blockName }) => {
+		const products = filterProductsByBlock(allProducts, blockName);
+		renderProducts(products, selector);
+	});
 };
 
-const renderNewProducts = (products) => {
-	const newProducts = filterProductsByBlock(products, BLOCK_NAMES.NEW_ARRIVAL);
-	renderProducts(newProducts, SELECTORS.newProducts);
+// ============================================================================
+// MOBILE SLIDER
+// ============================================================================
+
+const shouldShowSlider = (grid) => {
+	const cards = grid.querySelectorAll(`.${CSS_CLASSES.productCard}`);
+	const cardCount = cards.length;
+
+	if (cardCount === 0) return false;
+
+	if (window.innerWidth >= CONFIG.MOBILE_SLIDER_BREAKPOINT) return false;
+
+	const containerWidth = grid.parentElement?.offsetWidth || window.innerWidth;
+
+	const cardsPerRow = Math.floor(
+		(containerWidth + CONFIG.CARD_GAP) /
+			(CONFIG.MIN_CARD_WIDTH + CONFIG.CARD_GAP)
+	);
+
+	return cardCount > cardsPerRow;
+};
+
+const initMobileSlider = (grid) => {
+	if (!grid) return null;
+
+	const cards = Array.from(
+		grid.querySelectorAll(`.${CSS_CLASSES.productCard}`)
+	);
+	if (cards.length === 0) return null;
+
+	if (!shouldShowSlider(grid)) {
+		const existingWrapper = grid.closest(`.${CSS_CLASSES.wrapper}`);
+		if (existingWrapper) {
+			existingWrapper.replaceWith(grid);
+		}
+		return null;
+	}
+
+	if (grid.closest(`.${CSS_CLASSES.wrapper}`)) return null;
+
+	const wrapper = document.createElement('div');
+	wrapper.className = CSS_CLASSES.wrapper;
+	grid.parentNode.insertBefore(wrapper, grid);
+	wrapper.appendChild(grid);
+
+	const dotsContainer = document.createElement('div');
+	dotsContainer.className = CSS_CLASSES.sliderDots;
+
+	cards.forEach((_, index) => {
+		const dot = document.createElement('button');
+		dot.className = `${CSS_CLASSES.sliderDot} ${
+			index === 0 ? CSS_CLASSES.sliderDotActive : ''
+		}`;
+		dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+		dot.addEventListener('click', () => {
+			cards[index].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+		});
+		dotsContainer.appendChild(dot);
+	});
+
+	wrapper.appendChild(dotsContainer);
+
+	const updateActiveDot = () => {
+		const scrollLeft = grid.scrollLeft;
+		const cardWidth = cards[0]?.offsetWidth || 0;
+		const gap = 16;
+		const activeIndex = Math.round(scrollLeft / (cardWidth + gap));
+
+		dotsContainer
+			.querySelectorAll(`.${CSS_CLASSES.sliderDot}`)
+			.forEach((dot, index) => {
+				dot.classList.toggle(
+					CSS_CLASSES.sliderDotActive,
+					index === activeIndex
+				);
+			});
+	};
+
+	grid.addEventListener('scroll', updateActiveDot, { passive: true });
+
+	return () => {
+		grid.removeEventListener('scroll', updateActiveDot);
+		if (wrapper.parentNode) {
+			wrapper.replaceWith(grid);
+		}
+	};
+};
+
+const initAllMobileSliders = () => {
+	let cleanupFunctions = [];
+
+	const reinitSliders = () => {
+		cleanupFunctions.forEach((fn) => fn());
+		cleanupFunctions = [];
+
+		document.querySelectorAll(SELECTORS.productGrids).forEach((grid) => {
+			const cleanup = initMobileSlider(grid);
+			if (cleanup) cleanupFunctions.push(cleanup);
+		});
+	};
+
+	reinitSliders();
+
+	let resizeTimeout;
+	const handleResize = () => {
+		clearTimeout(resizeTimeout);
+		resizeTimeout = setTimeout(() => {
+			reinitSliders();
+		}, CONFIG.RESIZE_DEBOUNCE_MS);
+	};
+
+	window.addEventListener('resize', handleResize);
+
+	return () => {
+		clearTimeout(resizeTimeout);
+		cleanupFunctions.forEach((fn) => fn());
+		window.removeEventListener('resize', handleResize);
+	};
 };
 
 // ============================================================================
@@ -235,20 +387,19 @@ const showNotification = (message, type = NotificationType.SUCCESS) => {
 export const initHome = async () => {
 	const products = await fetchProducts();
 
-	renderSelectedProducts(products);
-	renderNewProducts(products);
+	initAllProductGrids(products);
 
 	const cartHandler = createCartHandler(products);
 	cartHandler.initButtons();
 
-	const cleanupSlider = initSuitcasesSlider();
+	const cleanupSuitcasesSlider = initSuitcasesSlider();
+	const cleanupMobileSliders = initAllMobileSliders();
 
 	CartManager.updateCartCount();
 
 	return () => {
-		if (cleanupSlider) {
-			cleanupSlider();
-		}
+		if (cleanupSuitcasesSlider) cleanupSuitcasesSlider();
+		if (cleanupMobileSliders) cleanupMobileSliders();
 	};
 };
 

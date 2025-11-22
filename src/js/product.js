@@ -43,6 +43,12 @@ const BLOCK_NAMES = {
 const CSS_CLASSES = {
 	tabActive: 'product-tabs__tab--active',
 	panelActive: 'product-tabs__panel--active',
+	starActive: 'active',
+};
+
+const MESSAGES = {
+	productNotFound: 'Product not found. Please return to the catalog.',
+	reviewSubmitted: 'Review submitted! (This is a demo)',
 };
 
 // ============================================================================
@@ -103,14 +109,17 @@ const addSaleBadge = (product) => {
 	}
 };
 
+const showProductNotFound = () => {
+	const container = document.querySelector(SELECTORS.productDetails);
+	if (container) {
+		container.innerHTML = `<p>${MESSAGES.productNotFound}</p>`;
+	}
+	showNotification(MESSAGES.productNotFound, NotificationType.ERROR);
+};
+
 const renderProductDetails = (product, addToCartFn) => {
 	if (!product) {
-		console.error('Product not found');
-		const container = document.querySelector(SELECTORS.productDetails);
-		if (container) {
-			container.innerHTML =
-				'<p>Product not found. Please return to the catalog.</p>';
-		}
+		showProductNotFound();
 		return;
 	}
 
@@ -148,44 +157,37 @@ const initProductTabs = () => {
 // REVIEW FORM
 // ============================================================================
 
+const resetStarRating = (starLabels) => {
+	starLabels.forEach((label) => label.classList.remove(CSS_CLASSES.starActive));
+};
+
+const updateStarRating = (starLabels, selectedIndex) => {
+	starLabels.forEach((label, labelIndex) => {
+		if (labelIndex <= selectedIndex) {
+			label.classList.add(CSS_CLASSES.starActive);
+		} else {
+			label.classList.remove(CSS_CLASSES.starActive);
+		}
+	});
+};
+
 const initReviewForm = () => {
 	const form = document.querySelector(SELECTORS.reviewForm);
 	if (!form) return;
 
-	form.addEventListener('submit', (e) => {
-		e.preventDefault();
-
-		showNotification(
-			'Review submitted! (This is a demo)',
-			NotificationType.INFO
-		);
-
-		form.reset();
-
-		const starLabels = form.querySelectorAll(SELECTORS.starLabels);
-		starLabels.forEach((label) => label.classList.remove('active'));
-	});
-
 	const starInputs = form.querySelectorAll(SELECTORS.starInputs);
 	const starLabels = form.querySelectorAll(SELECTORS.starLabels);
 
+	form.addEventListener('submit', (e) => {
+		e.preventDefault();
+		showNotification(MESSAGES.reviewSubmitted, NotificationType.INFO);
+		form.reset();
+		resetStarRating(starLabels);
+	});
+
 	starInputs.forEach((input, index) => {
 		input.addEventListener('change', () => {
-			// starLabels.forEach((label, i) => {
-			// 	if (i <= index) {
-			// 		label.textContent = '★';
-			// 	} else {
-			// 		label.textContent = '☆';
-			// 	}
-			// });
-			starLabels.forEach((label, labelIndex) => {
-				if (labelIndex <= index) {
-					label.classList.add('active');
-				} else {
-					label.classList.remove('active');
-				}
-			});
-
+			updateStarRating(starLabels, index);
 			starInputs[index].checked = true;
 		});
 	});
@@ -220,7 +222,7 @@ const initQuantityControls = () => {
 	});
 
 	quantityInput.addEventListener('input', () => {
-		let value = parseInt(quantityInput.value);
+		const value = parseInt(quantityInput.value);
 
 		if (isNaN(value) || value < CONFIG.MIN_QUANTITY) {
 			quantityInput.value = CONFIG.MIN_QUANTITY;

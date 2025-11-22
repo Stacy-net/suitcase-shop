@@ -1,3 +1,5 @@
+import { showNotification, NotificationType } from './home.js';
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -32,7 +34,7 @@ const MESSAGES = {
 	removeItem: 'Are you sure you want to remove this item?',
 	clearCart: 'Are you sure you want to clear your cart?',
 	emptyCheckout: 'Your cart is empty!',
-	checkout: 'Proceeding to checkout...',
+	checkout: 'Thank you for your purchase!',
 	removeOnZero: 'Remove this item from cart?',
 };
 const ROUTES = {
@@ -279,11 +281,13 @@ const handleCheckout = () => {
 	const cart = CartManager.getCart();
 
 	if (cart.length === 0) {
-		alert(MESSAGES.emptyCheckout);
+		showNotification(MESSAGES.emptyCheckout, NotificationType.ERROR);
 		return;
 	}
 
-	alert(MESSAGES.checkout);
+	showNotification(MESSAGES.checkout, NotificationType.SUCCESS);
+	CartManager.clearCart();
+	renderCartItems();
 };
 
 // ============================================================================
