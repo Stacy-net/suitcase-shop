@@ -17,3 +17,9 @@
 		padding: 12px 28px;
 	}
 }
+
+@include mobile {
+	.btn--medium {
+		padding: 10px;
+	}
+}

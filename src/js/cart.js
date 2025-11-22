@@ -245,18 +245,19 @@ const handleQuantityChange = (productId, action) => {
 
 	if (!item) return;
 
-	const newQuantity =
-		action === 'increase' ? item.quantity + 1 : item.quantity - 1;
-
-	if (newQuantity > CONFIG.MIN_QUANTITY) {
-		CartManager.updateQuantity(productId, newQuantity);
-		renderCartItems();
-	} else {
+	if (action === 'decrease' && item.quantity === 1) {
 		if (confirm(MESSAGES.removeOnZero)) {
 			CartManager.removeFromCart(productId);
 			renderCartItems();
 		}
+		return;
 	}
+
+	const newQuantity =
+		action === 'increase' ? item.quantity + 1 : item.quantity - 1;
+
+	CartManager.updateQuantity(productId, newQuantity);
+	renderCartItems();
 };
 
 const handleDeleteItem = (productId) => {
@@ -298,6 +299,8 @@ const initCartControls = () => {
 	const cartItemsContainer = document.querySelector(SELECTORS.cartItems);
 	if (!cartItemsContainer) return;
 
+	if (cartItemsContainer.dataset.listenerAdded) return;
+
 	cartItemsContainer.addEventListener('click', (e) => {
 		const quantityBtn = e.target.closest(SELECTORS.quantityBtn);
 		const deleteBtn = e.target.closest(SELECTORS.deleteBtn);
@@ -313,6 +316,7 @@ const initCartControls = () => {
 			handleDeleteItem(productId);
 		}
 	});
+	cartItemsContainer.dataset.listenerAdded = 'true';
 };
 
 const initCartButtons = () => {
