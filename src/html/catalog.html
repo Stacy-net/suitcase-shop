@@ -21,7 +21,7 @@
         <div class="catalog__controls">
           <button class="catalog__filter-btn catalog-field">Filters</button>
 
-          <label class="catalog__sort">
+          <label for="sort" class="catalog__sort">
             <div id="sort" class="catalog__dropdown catalog-field" data-js="sort">
               <button class="catalog__dropdown-btn" type="button" aria-label="Sort options">Default Sorting</button>
               <ul class="catalog__dropdown-list">
@@ -47,8 +47,8 @@
         <div class="catalog-filters__container container">
           <div class="catalog-filters__row">
             <div class="catalog-filters__item">
-              <label class="catalog-filters__label">Size</label>
-              <select class="catalog-filters__select">
+              <label for="size" class="catalog-filters__label">Size</label>
+              <select id="size" class="catalog-filters__select">
                 <option value="">Choose option</option>
                 <option value="S">S</option>
                 <option value="M">M</option>
@@ -56,13 +56,12 @@
                 <option value="XL">XL</option>
                 <option value="S-L">S-L</option>
                 <option value="S-M-XL">S, M, XL</option>
-
               </select>
             </div>
 
             <div class="catalog-filters__item">
-              <label class="catalog-filters__label">Color</label>
-              <select class="catalog-filters__select">
+              <label for="color" class="catalog-filters__label">Color</label>
+              <select id="color" class="catalog-filters__select">
                 <option value="">Choose option</option>
                 <option value="yellow">Yellow</option>
                 <option value="black">Black</option>
@@ -75,8 +74,8 @@
             </div>
 
             <div class="catalog-filters__item">
-              <label class="catalog-filters__label">Category</label>
-              <select class="catalog-filters__select">
+              <label for="category" class="catalog-filters__label">Category</label>
+              <select id="category" class="catalog-filters__select">
                 <option value="">Choose option</option>
                 <option value="suitcases">Suitcases</option>
                 <option value="carry-ons">Carry-ons</option>
@@ -85,8 +84,8 @@
             </div>
 
             <div class="catalog-filters__item catalog-filters__item--checkbox">
-              <label class="catalog-filters__label">Sales</label>
-              <label class="catalog-filters__checkbox">
+              <div class="catalog-filters__label">Sales</div>
+              <label for="sales-filter" class="catalog-filters__checkbox">
                 <input type="checkbox" class="catalog-filters__checkbox-input" id="sales-filter">
                 <span class="catalog-filters__checkbox-custom"></span>
               </label>

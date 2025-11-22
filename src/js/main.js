@@ -700,36 +700,32 @@ const openLoginModal = () => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
-		const emailInput = document.querySelector(SELECTORS.emailInput);
-		const passwordInput = document.querySelector(SELECTORS.passwordInput);
-
-		const email = emailInput?.value || '';
-		const password = passwordInput?.value || '';
-
-		if (emailInput) clearFieldError(emailInput);
-		if (passwordInput) clearFieldError(passwordInput);
+		const fields = [
+			{
+				selector: SELECTORS.emailInput,
+				validate: isValidEmail,
+				message: LOGIN_MESSAGES.invalidEmail,
+			},
+			{
+				selector: SELECTORS.passwordInput,
+				validate: isValidPassword,
+				message: LOGIN_MESSAGES.invalidPassword,
+			},
+		];
 
 		let hasErrors = false;
 
-		if (!isValidEmail(email)) {
-			if (emailInput) {
-				showFieldError(emailInput, LOGIN_MESSAGES.invalidEmail, loginForm);
-				if (!hasErrors) emailInput.focus();
-			}
-			hasErrors = true;
-		}
+		fields.forEach(({ selector, validate, message }) => {
+			const input = document.querySelector(selector);
+			const value = input?.value || '';
+			clearFieldError(input);
 
-		if (!isValidPassword(password)) {
-			if (passwordInput) {
-				showFieldError(
-					passwordInput,
-					LOGIN_MESSAGES.invalidPassword,
-					loginForm
-				);
-				if (!hasErrors) passwordInput.focus();
+			if (input && !validate(value)) {
+				showFieldError(input, message, loginForm);
+				if (!hasErrors) input.focus();
+				hasErrors = true;
 			}
-			hasErrors = true;
-		}
+		});
 
 		if (hasErrors) return;
 
@@ -737,8 +733,9 @@ const openLoginModal = () => {
 		closeLoginModal();
 		loginForm.reset();
 
-		if (emailInput) clearFieldError(emailInput);
-		if (passwordInput) clearFieldError(passwordInput);
+		fields.forEach(({ selector }) =>
+			clearFieldError(document.querySelector(selector))
+		);
 	};
 
 	loginForm.removeEventListener('submit', handleSubmit);
