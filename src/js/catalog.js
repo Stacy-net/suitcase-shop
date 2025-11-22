@@ -268,7 +268,6 @@ const renderPagination = (totalPages, currentPage) => {
 
 	paginationContainer.innerHTML = '';
 
-	// Prev button
 	const prevButton = createPaginationButton(
 		'Prev',
 		currentPage - 1,

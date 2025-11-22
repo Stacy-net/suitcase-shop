@@ -11,8 +11,6 @@
 
 .cart__header {
 	display: grid;
-
-	// grid-template-columns: 100px 1fr 120px 180px 120px 80px;
 	grid-template-columns: 1fr 2fr 1fr 1fr 1fr 1fr;
 	gap: 20px;
 	padding: 20px 40px;
@@ -215,7 +213,6 @@
 		margin-bottom: 40px;
 	}
 
-	// ✅ Кнопка видалення у верхньому правому куті
 	.cart__delete-btn {
 		position: absolute;
 		top: 15px;
@@ -223,7 +220,6 @@
 		margin: 0;
 	}
 
-	// ✅ Додаємо лейбли перед кожним полем
 	.cart__item-image,
 	.cart__item-name,
 	.cart__item-price,
@@ -243,20 +239,17 @@
 		}
 	}
 
-	// ✅ Image wrapper
 	.cart__item-image {
 		max-width: 120px;
 		height: auto;
 		border-radius: 4px;
 	}
 
-	// ✅ Product name більший
 	.cart__item-name {
 		font-size: $font-size-large;
 		font-weight: $font-weight-bold;
 	}
 
-	// ✅ Price, quantity, total в один рядок
 	.cart__item-details {
 		display: grid;
 		grid-template-columns: 1fr 1fr 1fr;

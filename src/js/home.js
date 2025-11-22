@@ -94,8 +94,6 @@ const initSuitcasesSlider = () => {
 	let isPaused = false;
 	let isTransitioning = false;
 
-	// let slidesToShow = getSlidesToShow();
-
 	const handleMouseEnter = () => {
 		isPaused = true;
 	};

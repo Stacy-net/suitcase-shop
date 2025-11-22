@@ -292,11 +292,6 @@ export const initProduct = async () => {
 
 	renderProductDetails(currentProduct, cartHandler.addToCart);
 
-	// const youMayProducts = filterProductsByBlock(
-	// 	products,
-	// 	BLOCK_NAMES.YOU_MAY_LIKE
-	// );
-	// renderProducts(youMayProducts, SELECTORS.youMayLike);
 	initYouMayAlsoLike(products);
 
 	cartHandler.initButtons();
