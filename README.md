@@ -4,6 +4,30 @@ A multi-page responsive e-commerce website built with **HTML**, **SASS**, and **
 
 ---
 
+## Preview
+
+![Homepage Screenshot](./src/assets/images/preview.png)
+
+---
+
+## Tech Stack
+
+- HTML5
+- SASS (SCSS)
+- JavaScript (ES6+)
+
+---
+
+## Features
+
+- Responsive layout (mobile / tablet / desktop)
+- Product listing
+- Product details page
+- Shopping cart logic
+- Form validation
+
+---
+
 ## Prerequisites
 
 - Node.js (v18+ recommended)
@@ -34,5 +58,3 @@ This command:
 ---
 
 All development happens inside the **src/** folder.
-
-### Checklist 64 of 64
