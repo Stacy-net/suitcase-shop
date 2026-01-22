@@ -4,6 +4,10 @@ A multi-page responsive e-commerce website built with **HTML**, **SASS**, and **
 
 ---
 
+## Live Demo
+
+🔗 https://suitcases-shop.netlify.app/
+
 ## Preview
 
 ![Homepage Screenshot](./src/assets/images/preview.png)
